@@ -1,0 +1,1749 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Registre comptable SYSCOHADA en F CFA, verrouillé par empreinte digitale, scellé et surveillé par une IA autonome.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Registre">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Registre Financier Scellé</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#2A3990">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout : application de registre — colonne unique (max 980 px), en-tête collant, navigation basse fixe, feuilles modales montant depuis le bas. */
+:root{
+  --paper:#F2F4F9; --surface:#FFFFFF; --sunk:#E8ECF4; --ink:#121930; --muted:#59627D; --line:#D8DEEA;
+  --indigo:#2A3990; --on-indigo:#FFFFFF; --indigo-soft:#E3E7F7;
+  --ochre:#9C6410; --ochre-soft:#F6EAD3;
+  --pos:#1A7045; --pos-soft:#DFF1E6; --neg:#AE2F2A; --neg-soft:#F7E1DF; --warn:#965800; --warn-soft:#FAEACD;
+  --shadow:0 1px 2px rgba(18,25,48,.06),0 10px 28px rgba(18,25,48,.10);
+  --scrim:rgba(18,25,48,.45);
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:14px; --nav-h:66px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B0F1F; --surface:#131930; --sunk:#1A2140; --ink:#E6E9F3; --muted:#9AA2BD; --line:#283050;
+    --indigo:#909DF2; --on-indigo:#0B0F1F; --indigo-soft:#1D2652;
+    --ochre:#E3A84C; --ochre-soft:#3A2B10;
+    --pos:#52C68D; --pos-soft:#10301F; --neg:#F37E76; --neg-soft:#3B1715; --warn:#ECB04A; --warn-soft:#3A2A0C;
+    --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B0F1F; --surface:#131930; --sunk:#1A2140; --ink:#E6E9F3; --muted:#9AA2BD; --line:#283050;
+  --indigo:#909DF2; --on-indigo:#0B0F1F; --indigo-soft:#1D2652;
+  --ochre:#E3A84C; --ochre-soft:#3A2B10;
+  --pos:#52C68D; --pos-soft:#10301F; --neg:#F37E76; --neg-soft:#3B1715; --warn:#ECB04A; --warn-soft:#3A2A0C;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(1.45rem,4.6vw,2.05rem);font-weight:760}
+h2{font-size:1.02rem;font-weight:720;letter-spacing:.01em}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:650}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* En-tête */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.hdr-in{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand-mark{width:40px;height:40px;display:grid;place-items:center;flex:none}
+.brand-mark svg{width:40px;height:40px;display:block}
+.brand-txt{min-width:0}
+.brand-name{font-family:var(--f-display);font-stretch:118%;font-weight:760;font-size:1rem;line-height:1.1}
+.brand-sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:650;padding:4px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.iconbtn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.iconbtn svg{width:20px;height:20px}
+.banner{max-width:980px;margin:12px auto 0;padding:10px 14px;border-radius:12px;background:var(--ochre-soft);font-size:.88rem;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner.n{background:var(--neg-soft)}
+
+/* Corps */
+.main{max-width:980px;margin:0 auto;padding-block:18px calc(var(--nav-h) + 112px + env(safe-area-inset-bottom,0px));display:grid;gap:26px}
+.blk{display:grid;gap:12px;min-width:0}
+.blk-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.link{background:none;border:0;padding:4px 0;color:var(--indigo);font-weight:650;font-size:.88rem}
+
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:760px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;min-width:0;align-content:start}
+.tile-k{font-size:.78rem;color:var(--muted);font-weight:650}
+.tile-v{font-family:var(--f-display);font-stretch:104%;font-weight:720;font-size:clamp(1.12rem,4.6vw,1.5rem);font-variant-numeric:tabular-nums;line-height:1.1;overflow-wrap:anywhere}
+.tile-v small{font-family:var(--f-body);font-size:.68rem;font-weight:650;color:var(--muted);margin-left:5px;letter-spacing:.04em}
+.tile.lead{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
+.tile.lead .tile-k,.tile.lead small{color:var(--on-indigo);opacity:.82}
+
+.seal-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px dashed var(--ochre);background:var(--ochre-soft);font-size:.86rem;text-align:left;width:100%}
+.seal-line svg{width:22px;height:22px;color:var(--ochre);flex:none}
+.seal-line.bad{border-color:var(--neg);background:var(--neg-soft)}
+.seal-line.bad svg{color:var(--neg)}
+
+.alerts{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.alert{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:11px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%}
+.sev{width:10px;height:10px;border-radius:50%;margin-top:6px}
+.sev.crit{background:var(--neg)} .sev.warn{background:var(--warn)} .sev.info{background:var(--indigo)} .sev.ok{background:var(--pos)}
+.alert-t{font-weight:650;font-size:.92rem}
+.alert-d{font-size:.84rem;color:var(--muted)}
+.chev{color:var(--muted);font-size:1.2rem;line-height:1.1}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:650;padding:3px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.e{background:var(--pos-soft);color:var(--pos)} .chip.s{background:var(--neg-soft);color:var(--neg)}
+.chip.w{background:var(--warn-soft);color:var(--warn)} .chip.i{background:var(--indigo-soft);color:var(--indigo)} .chip.o{background:var(--ochre-soft);color:var(--ochre)}
+
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.tbl{border-collapse:collapse;width:100%;font-size:.86rem;min-width:540px}
+.tbl th,.tbl td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650;background:var(--sunk)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tfoot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+.tbl td.num{font-family:var(--f-mono)}
+.tbl tr.paid td{color:var(--muted)}
+
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;margin:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kv>div{display:contents}
+.kv dt,.kv dd{padding:10px 12px;border-bottom:1px solid var(--line);margin:0;min-width:0}
+.kv dd{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.88rem;overflow-wrap:anywhere}
+.kv dd.txt{font-family:var(--f-body);font-size:.9rem}
+.kv>div:last-child dt,.kv>div:last-child dd{border-bottom:0}
+.kv>div.tot dt,.kv>div.tot dd{font-weight:700;background:var(--sunk)}
+
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.chart svg{display:block;width:100%;max-width:620px;height:auto;margin:0 auto}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);flex-wrap:wrap;margin-top:6px;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.toolbar{display:grid;gap:10px}
+.search{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);min-height:44px}
+.chips-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.fchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:.82rem;font-weight:650;white-space:nowrap;color:var(--muted)}
+.fchip[aria-pressed="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
+.ledger{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.ledger .mh{padding:7px 12px;background:var(--sunk);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between}
+.row{display:grid;grid-template-columns:40px minmax(0,1fr) auto 20px;gap:10px;align-items:center;padding:10px 12px;border:0;border-bottom:1px solid var(--line);width:100%;background:none;text-align:left}
+.ledger li:last-child .row{border-bottom:0}
+.r-date{display:grid;text-align:center;line-height:1.05}
+.r-date b{font-family:var(--f-display);font-size:1.12rem;font-weight:720}
+.r-date span{font-size:.66rem;color:var(--muted)}
+.r-main{min-width:0}
+.r-lib{font-weight:650;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-meta{font-size:.76rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-amt{font-family:var(--f-mono);font-weight:600;font-size:.88rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.r-seal svg{width:18px;height:18px;color:var(--ochre);display:block}
+.r-seal.none svg{color:var(--muted);opacity:.55}
+.row.rev .r-lib{text-decoration:line-through;text-decoration-color:var(--muted)}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:20px;display:grid;gap:12px;justify-items:start}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;padding:10px 16px;font-weight:650;font-size:.92rem;border:1px solid var(--line);background:var(--surface);min-height:44px;text-decoration:none;color:inherit}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--indigo);border-color:var(--indigo);color:var(--on-indigo)}
+.btn.seal{background:var(--ochre);border-color:var(--ochre);color:var(--on-indigo)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--indigo)}
+.btn.danger{color:var(--neg);border-color:var(--neg);background:transparent}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(6px,env(safe-area-inset-left,0px));padding-right:max(6px,env(safe-area-inset-right,0px))}
+.nav-in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:var(--nav-h)}
+.nav a{display:grid;justify-items:center;align-content:center;gap:3px;text-decoration:none;color:var(--muted);font-size:.66rem;font-weight:650;min-width:0}
+.nav a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav a svg{width:22px;height:22px}
+.nav a[aria-current="page"]{color:var(--indigo)}
+.fab{position:fixed;z-index:26;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));height:54px;border-radius:18px;padding:0 20px 0 16px;background:var(--ochre);color:var(--on-indigo);border:0;display:flex;align-items:center;gap:8px;font-weight:720;box-shadow:var(--shadow)}
+.fab svg{width:22px;height:22px}
+
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:calc(100% - 20px - env(safe-area-inset-top,0px));overflow:auto;border-radius:20px 20px 0 0;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:14px;align-content:start}
+@media(min-width:700px){.scrim{align-items:center}.sheet{border-radius:20px;max-height:90%}}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.field{display:grid;gap:5px;min-width:0}
+.field>label,.flabel{font-size:.8rem;font-weight:650;color:var(--muted)}
+.in{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--paper);min-height:44px}
+textarea.in{min-height:74px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:430px){.grid2.stack{grid-template-columns:1fr}}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:9px 4px;font-weight:650;font-size:.84rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.hint{font-size:.8rem;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:center;font-size:.9rem}
+.check input{width:20px;height:20px;accent-color:var(--indigo);flex:none}
+.smart{background:var(--indigo-soft);border-radius:var(--r);padding:12px;display:grid;gap:10px}
+.smart-h{display:flex;align-items:center;gap:8px;font-weight:720;font-size:.9rem;color:var(--indigo)}
+.smart-h svg{width:18px;height:18px}
+.status{font-size:.82rem;color:var(--muted);min-height:1.2em}
+.confirm{border:1px solid var(--neg);background:var(--neg-soft);border-radius:12px;padding:12px;display:grid;gap:10px}
+
+.fins{display:grid;gap:12px}
+@media(min-width:760px){.fins{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fin{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;min-width:0;align-content:start}
+.fin-top{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.code{font-family:var(--f-mono);font-weight:600;font-size:.8rem;color:var(--indigo)}
+.bar{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--indigo);border-radius:4px}
+.bar.o>i{background:var(--ochre)} .bar.n>i{background:var(--neg)} .bar.p>i{background:var(--pos)}
+.barrow{display:grid;gap:5px}
+.barrow-l{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;color:var(--muted)}
+.barrow-l b{font-family:var(--f-mono);color:var(--ink);font-weight:600}
+
+.blist{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.brow{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:6px 12px;padding:12px;border-bottom:1px solid var(--line);align-items:center}
+.brow:last-child{border-bottom:0}
+.brow .bn{min-width:0}
+.brow .bn b{display:block;font-size:.9rem}
+.brow .bfoot{grid-column:1/-1;display:grid;gap:5px}
+.bin{text-align:right;font-family:var(--f-mono);min-height:40px;padding:8px 10px}
+
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:760px){.menu{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mitem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;text-align:left;text-decoration:none;color:inherit;align-content:start}
+.mitem svg{width:24px;height:24px;color:var(--indigo)}
+.mitem b{font-size:.95rem}
+.mitem span{font-size:.8rem;color:var(--muted)}
+
+.chat{display:grid;gap:10px}
+.msg{max-width:90%;padding:10px 13px;border-radius:14px;font-size:.92rem;overflow-wrap:anywhere}
+.msg.u{justify-self:end;background:var(--indigo);color:var(--on-indigo);border-bottom-right-radius:4px;white-space:pre-wrap}
+.msg.a{justify-self:start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.md p{margin:0 0 6px} .md p:last-child{margin:0}
+.md ul,.md ol{margin:4px 0 8px;padding-left:20px}
+.md h4{font-family:var(--f-display);font-size:.95rem;margin:10px 0 4px}
+.composer{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;min-height:48px;max-height:150px}
+.prop{border:1px solid var(--ochre);background:var(--ochre-soft);border-radius:var(--r);padding:12px;display:grid;gap:8px}
+.report{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;font-size:.92rem}
+.url{font-family:var(--f-mono);font-size:.82rem;background:var(--sunk);padding:8px 10px;border-radius:8px;display:block;overflow-wrap:anywhere;user-select:all}
+
+.lock{position:fixed;inset:0;z-index:60;background:var(--paper);overflow:auto;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lock-in{width:100%;max-width:390px;display:grid;gap:18px;justify-items:center;text-align:center}
+.emblem{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--indigo);color:var(--on-indigo);position:relative;margin:8px 0}
+.emblem::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1.5px dashed var(--ochre)}
+.emblem svg{width:54px;height:54px}
+.emblem.logo{background:none;width:120px;height:120px;margin:0}
+.emblem.logo::after{display:none}
+.emblem.logo svg{width:120px;height:120px}
+.dots{display:flex;gap:12px;justify-content:center}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--indigo)}
+.dots i.on{background:var(--indigo)}
+.keypad{display:grid;grid-template-columns:repeat(3,74px);gap:12px;justify-content:center}
+.key{height:60px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-display);font-size:1.4rem;font-weight:650;font-variant-numeric:tabular-nums}
+.key.fn{font-family:var(--f-body);font-size:.82rem;color:var(--muted);font-weight:650}
+.key.fn svg{width:24px;height:24px;color:var(--ochre)}
+.err{color:var(--neg);font-size:.86rem;min-height:1.3em}
+.feat{display:grid;gap:12px;text-align:left;width:100%;margin:0;padding:0;list-style:none}
+.feat li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;font-size:.9rem}
+.feat svg{width:24px;height:24px;color:var(--ochre)}
+.steps{font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.form-left{display:grid;gap:12px;width:100%;text-align:left}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 84px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:.88rem;font-weight:650;width:max-content;max-width:min(92vw,520px);box-shadow:var(--shadow);text-align:center}
+.hash{font-family:var(--f-mono);font-size:.74rem;word-break:break-all;color:var(--muted)}
+.sealbox{border:1px dashed var(--ochre);background:var(--ochre-soft);border-radius:12px;padding:12px;display:grid;gap:6px}
+.sealbox .t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.88rem}
+.sealbox .t svg{width:20px;height:20px;color:var(--ochre)}
+.big-amt{font-family:var(--f-display);font-stretch:104%;font-weight:760;font-size:1.7rem;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: no-preference){
+  .sheet{animation:up .22s ease-out}
+  @keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+}
+</style>
+
+<div id="lock" class="lock" aria-live="polite"></div>
+<div id="app" hidden>
+  <header class="hdr gutter">
+    <div class="hdr-in">
+      <div class="brand">
+        <div class="brand-mark" id="brandMark"></div>
+        <div class="brand-txt">
+          <div class="brand-name">Registre financier</div>
+          <div class="brand-sub" id="brandSub"></div>
+        </div>
+      </div>
+      <span class="pill" id="modePill"></span>
+      <button class="iconbtn" type="button" data-act="lock" aria-label="Verrouiller le registre" id="lockBtn"></button>
+    </div>
+  </header>
+  <div class="gutter" id="banners"></div>
+  <main id="main" class="main gutter"></main>
+  <button class="fab" type="button" data-act="newop" id="fab"></button>
+  <nav class="nav" aria-label="Navigation principale"><div class="nav-in" id="nav"></div></nav>
+</div>
+<div id="sheets"></div>
+<div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px">Activez JavaScript pour utiliser le registre.</p></noscript>
+
+<script>
+'use strict';
+/* ================= Référentiels ================= */
+const IC = {
+  fp:'<path d="M12 4.5a7.5 7.5 0 0 0-7.5 7.5v1.2"/><path d="M19.5 12a7.5 7.5 0 0 0-3.8-6.5"/><path d="M8.6 20.2c1.2-1.6 1.9-3.6 1.9-5.7V12a1.5 1.5 0 0 1 3 0v1.6"/><path d="M15 12v1.8c0 2.6-.8 5-2.2 7"/><path d="M18 14.5c0 1.8-.4 3.6-1.1 5.2"/><path d="M6 16.8c.3-.9.5-1.9.5-2.9V12A5.5 5.5 0 0 1 15 7.4"/>',
+  lock:'<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  home:'<path d="M3.5 11.5 12 4.5l8.5 7"/><path d="M5.5 10v9.5h13V10"/>',
+  book:'<rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  coins:'<ellipse cx="12" cy="6.5" rx="7" ry="2.8"/><path d="M5 6.5v5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-5"/><path d="M5 11.5v5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-5"/>',
+  spark:'<path d="M12 3.5c.6 4.1 2.6 6.1 6.5 6.7-3.9.6-5.9 2.6-6.5 6.7-.6-4.1-2.6-6.1-6.5-6.7 3.9-.6 5.9-2.6 6.5-6.7z"/><path d="M18.5 16v4M16.5 18h4"/>',
+  grid:'<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/>',
+  wallet:'<rect x="3.5" y="6" width="17" height="13" rx="2"/><path d="M16 12.5h4.5M3.5 9.5h17"/>',
+  shield:'<path d="M12 3.5 5 6.5v5c0 4.3 2.9 7.7 7 9 4.1-1.3 7-4.7 7-9v-5z"/><path d="m9 12 2 2 4-4"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  down:'<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+  camera:'<path d="M4 8.5h3l1.5-2h7l1.5 2h3v10H4z"/><circle cx="12" cy="13" r="3.2"/>',
+  play:'<path d="M8 5.5v13l10-6.5z"/>',
+  phone:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+function ic(n){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${n==='fp'?1.6:1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`; }
+/* Logo : empreinte digitale scellée dans un bloc hexagonal relié par six nœuds */
+function logoSVG(size, bgVar){
+  const nodes = [[60,8],[105,34],[105,86],[60,112],[15,86],[15,34]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5"></circle>`).join('');
+  return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" role="img" aria-label="Logo Registre Scellé"><polygon points="60,8 105,34 105,86 60,112 15,86 15,34" fill="#2A3990" stroke="#E3A84C" stroke-width="2.6" stroke-linejoin="round"></polygon><g transform="translate(25.2 26.2) scale(2.9)" fill="none" stroke-linecap="round" stroke-width="1.5"><path d="M12 4.5a7.5 7.5 0 0 0-7.5 7.5v1.2" stroke="#E3A84C" stroke-dasharray="2.2 1.1"></path><path d="M19.5 12a7.5 7.5 0 0 0-3.8-6.5" stroke="#E3A84C" stroke-dasharray="2.2 1.1"></path><path d="M8.6 20.2c1.2-1.6 1.9-3.6 1.9-5.7V12a1.5 1.5 0 0 1 3 0v1.6" stroke="#FFFFFF"></path><path d="M15 12v1.8c0 2.6-.8 5-2.2 7" stroke="#FFFFFF"></path><path d="M18 14.5c0 1.8-.4 3.6-1.1 5.2" stroke="#FFFFFF"></path><path d="M6 16.8c.3-.9.5-1.9.5-2.9V12A5.5 5.5 0 0 1 15 7.4" stroke="#FFFFFF"></path></g><g fill="#E3A84C" stroke-width="2.2" style="stroke:var(${bgVar})">${nodes}</g></svg>`;
+}
+
+const CATS = [
+  {k:'ventes',n:'Ventes de marchandises',c:'701',i:'Ventes de marchandises',s:'E',f:'Exploitation',kw:['vente de marchandise','marchandises vendues','vente de produit','ventes de','vendu','vente de plants','recette du jour']},
+  {k:'services',n:'Prestations de services',c:'706',i:'Services vendus',s:'E',f:'Exploitation',kw:['prestation','facture client','client a paye','client m a paye','paiement client','commission percue','loyer percu','location percue','service rendu']},
+  {k:'subv_exp',n:"Subventions d’exploitation",c:'71',i:"Subventions d’exploitation",s:'E',f:'Exploitation',kw:["subvention d exploitation",'aide au fonctionnement']},
+  {k:'autres_prod',n:'Autres produits',c:'75',i:'Autres produits',s:'E',f:'Exploitation',kw:['don recu','cotisation','adhesion','autre produit','frais d inscription','inscription']},
+  {k:'prod_fin',n:'Produits financiers',c:'77',i:'Revenus financiers et produits assimilés',s:'E',f:'Exploitation',kw:['interets recus','interet crediteur','dividende recu','staking','rendement']},
+  {k:'cession',n:"Cessions d’immobilisations",c:'82',i:"Produits des cessions d’immobilisations",s:'E',f:'Investissement',kw:['cession','vente de materiel','vente du vehicule','vente de terrain','vente de la moto']},
+  {k:'capital',n:'Apport en capital',c:'101',i:'Capital social',s:'E',f:'Financement',kw:['capital social','associe','actionnaire','levee de fonds','investisseur','souscription']},
+  {k:'apport_expl',n:"Apport personnel de l’exploitant",c:'104',i:"Compte de l’exploitant",s:'E',f:'Financement',kw:['apport','fonds propres','apport personnel','mise de fonds']},
+  {k:'subv_inv',n:"Subventions d’investissement",c:'14',i:"Subventions d’investissement",s:'E',f:'Financement',kw:['subvention','bailleur','programme','fonds de developpement','grant','tranche de subvention']},
+  {k:'emprunt',n:'Emprunts reçus',c:'162',i:'Emprunts et dettes auprès des établissements de crédit',s:'E',f:'Financement',kw:['pret recu','emprunt','credit debloque','deblocage','debloque','microfinance','sfd','pret de']},
+  {k:'achats_march',n:'Achats de marchandises',c:'601',i:'Achats de marchandises',s:'S',f:'Exploitation',kw:['achat de marchandise','reapprovisionnement','achat de stock','marchandises achetees']},
+  {k:'fournitures',n:'Matières et fournitures',c:'604',i:'Achats stockés de matières et fournitures consommables',s:'S',f:'Exploitation',kw:['fourniture','papier','cartouche','semence','engrais','intrant','aliment','emballage','pesticide','sac']},
+  {k:'energie',n:'Eau, électricité, carburant',c:'605',i:'Autres achats',s:'S',f:'Exploitation',kw:['electricite','cie','sodeci','eau','carburant','essence','gasoil','gas oil','courant','gaz']},
+  {k:'transport',n:'Transports et déplacements',c:'61',i:'Transports',s:'S',f:'Exploitation',kw:['transport','taxi','deplacement','billet','voyage','yango','gbaka','livraison','woro woro','mission']},
+  {k:'loyer',n:'Loyers et locations',c:'622',i:'Locations et charges locatives',s:'S',f:'Exploitation',kw:['loyer','location','bail']},
+  {k:'entretien',n:'Entretien et réparations',c:'624',i:'Entretien, réparations, remise en état et maintenance',s:'S',f:'Exploitation',kw:['reparation','entretien','maintenance','vidange','depannage']},
+  {k:'pub',n:'Publicité et communication',c:'627',i:'Publicité, publications, relations publiques',s:'S',f:'Exploitation',kw:['publicite','pub','sponsoris','flyer','affiche','marketing','communication','boost','campagne']},
+  {k:'telecom',n:'Télécommunications et Internet',c:'628',i:'Frais de télécommunications',s:'S',f:'Exploitation',kw:['internet','credit telephonique','forfait','abonnement','telephone','wifi','fibre','data','hebergement','nom de domaine','recharge']},
+  {k:'frais_banc',n:'Frais bancaires et Mobile Money',c:'631',i:'Frais bancaires',s:'S',f:'Exploitation',kw:['frais bancaire','agios','frais de retrait','frais de transfert','frais de tenue','tenue de compte','commission bancaire','frais mobile money','frais d envoi']},
+  {k:'honoraires',n:'Honoraires et prestataires',c:'632',i:"Rémunérations d’intermédiaires et de conseils",s:'S',f:'Exploitation',kw:['honoraire','consultant','prestataire','avocat','notaire','comptable','geometre','freelance','developpeur','formateur']},
+  {k:'impots',n:'Impôts et taxes',c:'64',i:'Impôts et taxes',s:'S',f:'Exploitation',kw:['impot','taxe','patente','dgi','timbre','vignette','droit d enregistrement']},
+  {k:'autres_ch',n:'Autres charges',c:'65',i:'Autres charges',s:'S',f:'Exploitation',kw:['divers','don verse','amende','cadeau']},
+  {k:'personnel',n:'Salaires et charges sociales',c:'66',i:'Charges de personnel',s:'S',f:'Exploitation',kw:['salaire','paie','cnps','prime','stagiaire','ouvrier','main d oeuvre','journalier','manoeuvre']},
+  {k:'interets',n:'Intérêts des emprunts',c:'671',i:'Intérêts des emprunts',s:'S',f:'Exploitation',kw:['interet','interets du pret']},
+  {k:'logiciels',n:'Logiciels, applications et sites web',c:'213',i:'Logiciels et sites internet',s:'S',f:'Investissement',kw:['logiciel','application','site web','site internet','licence','developpement de l application']},
+  {k:'terrains',n:'Terrains',c:'22',i:'Terrains',s:'S',f:'Investissement',kw:['terrain','parcelle','achat de lot']},
+  {k:'batiments',n:'Bâtiments et aménagements',c:'23',i:'Bâtiments, installations techniques et agencements',s:'S',f:'Investissement',kw:['construction','batiment','amenagement','cloture','forage','hangar','poulailler','enclos']},
+  {k:'materiel',n:'Matériel et mobilier',c:'244',i:'Matériel et mobilier',s:'S',f:'Investissement',kw:['ordinateur','laptop','telephone neuf','imprimante','meuble','chaise','table','materiel','drone','gps','groupe electrogene','panneau solaire']},
+  {k:'vehicules',n:'Matériel de transport',c:'245',i:'Matériel de transport',s:'S',f:'Investissement',kw:['vehicule','moto','voiture','tricycle','camion']},
+  {k:'remb_capital',n:'Remboursement du capital emprunté',c:'162',i:'Emprunts et dettes auprès des établissements de crédit',s:'S',f:'Financement',kw:['remboursement','echeance','mensualite']},
+  {k:'prelevement',n:"Prélèvement de l’exploitant",c:'104',i:"Compte de l’exploitant",s:'S',f:'Financement',kw:['prelevement','retrait personnel','usage personnel']},
+  {k:'virement',n:'Virement interne de fonds',c:'585',i:'Virements de fonds',s:'I',f:'Interne',kw:['virement interne','retrait banque','retrait a la banque','depot banque','depot a la banque','approvisionnement caisse','recharge mobile money','transfert vers']}
+];
+const MODES = [
+  {k:'especes',n:'Espèces',acc:'caisse',kw:['especes','espece','cash','liquide']},
+  {k:'virement',n:'Virement bancaire',acc:'banque',kw:['virement','bancaire','banque']},
+  {k:'cheque',n:'Chèque',acc:'banque',kw:['cheque']},
+  {k:'carte',n:'Carte bancaire',acc:'banque',kw:['carte','visa','mastercard']},
+  {k:'om',n:'Orange Money',acc:'mobile',kw:['orange money','om']},
+  {k:'mtn',n:'MTN MoMo',acc:'mobile',kw:['mtn','momo']},
+  {k:'moov',n:'Moov Money',acc:'mobile',kw:['moov','flooz']},
+  {k:'wave',n:'Wave',acc:'mobile',kw:['wave']},
+  {k:'crypto',n:'Crypto / Pi',acc:'crypto',kw:['pi network','crypto','usdt','bitcoin','pi']}
+];
+const ACCS = [
+  {k:'caisse',n:'Caisse',c:'571'},
+  {k:'banque',n:'Banque',c:'521'},
+  {k:'mobile',n:'Mobile Money',c:''},
+  {k:'crypto',n:'Portefeuille crypto / Pi',c:''}
+];
+const FIN_TYPES = ['Fonds propres','Apport des associés','Prêt bancaire','Prêt microfinance (SFD)','Subvention','Investisseur / levée de fonds','Financement participatif','Prévente de jetons','Don / mécénat','Avance remboursable'];
+const FIN_STATUTS = ['En négociation','Accordé','Partiellement reçu','Reçu en totalité','En remboursement','Soldé','Refusé'];
+const MODELS = [['claude-haiku-5-5','Claude Haiku 5.5 — rapide, économique'],['claude-sonnet-5-5','Claude Sonnet 5.5 — plus précis'],['claude-opus-5-5','Claude Opus 5.5 — le plus puissant']];
+const CATS_BY = Object.fromEntries(CATS.map(c=>[c.k,c]));
+const MODES_BY = Object.fromEntries(MODES.map(m=>[m.k,m]));
+const ACCS_BY = Object.fromEntries(ACCS.map(a=>[a.k,a]));
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MOIS_C = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+/* ================= Utilitaires ================= */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const NF = new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0});
+const fmt = n => NF.format(Math.round(+n || 0));
+const fmtS = n => ((+n||0) < -0.5 ? '−' : '') + NF.format(Math.abs(Math.round(+n || 0)));
+const num = v => { if (typeof v === 'number') return isFinite(v) ? v : 0; const s = String(v ?? '').replace(/[\s  ]/g,'').replace(',', '.'); const x = parseFloat(s); return isFinite(x) ? x : 0; };
+const pad = (n, l) => String(n).padStart(l, '0');
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)}`; };
+const dFR = iso => iso ? iso.split('-').reverse().join('/') : '';
+const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, ' ').replace(/\s+/g, ' ').trim();
+const catOf = k => CATS_BY[k] || {k, n:k || 'Sans catégorie', c:'', i:'', s:'S', f:'Exploitation', kw:[]};
+const accN = k => ACCS_BY[k]?.n || k || '';
+const modeN = k => MODES_BY[k]?.n || k || '';
+const isoValid = s => /^\d{4}-\d{2}-\d{2}$/.test(s || '') && !isNaN(Date.parse(s));
+function addMonths(iso, k){ const [y,m,d] = iso.split('-').map(Number); const t = new Date(Date.UTC(y, m-1+k, 1)); const last = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth()+1, 0)).getUTCDate(); t.setUTCDate(Math.min(d, last)); return t.toISOString().slice(0,10); }
+function addDays(iso, k){ const t = new Date(iso + 'T12:00:00'); t.setDate(t.getDate()+k); return `${t.getFullYear()}-${pad(t.getMonth()+1,2)}-${pad(t.getDate(),2)}`; }
+const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+function niceMax(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); for (const f of [1,2,2.5,5,10]) if (f*p >= v) return f*p; return 10*p; }
+function fmtC(n){ if (n >= 1e6) return (n/1e6).toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' M'; if (n >= 1e3) return Math.round(n/1e3) + ' k'; return String(Math.round(n)); }
+const ls = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+let STORAGE_OK = true;
+try { localStorage.setItem('rfs.t','1'); localStorage.removeItem('rfs.t'); } catch { STORAGE_OK = false; }
+let toastTimer = null;
+function toast(msg, ms=3200){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ t.hidden = true; }, ms); }
+function loadScript(src){ return new Promise((res, rej) => { if ($$('script').some(s => s.src === src)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('script')); document.head.append(s); }); }
+async function copyText(text, btn){ try { await navigator.clipboard.writeText(text); toast('Copié dans le presse-papiers.'); } catch { const el = btn?.closest('.field,.report,.sealbox,.blk')?.querySelector('.url,.hash'); if (el){ const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } toast('Sélectionnez le texte puis copiez-le.'); } }
+
+/* ================= Cryptographie ================= */
+const enc = s => new TextEncoder().encode(s);
+const b64e = u8 => { u8 = u8 instanceof Uint8Array ? u8 : new Uint8Array(u8); let s = ''; for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); };
+const b64d = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+const b64url = u8 => b64e(u8).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64urlD = s => { s = s.replace(/-/g,'+').replace(/_/g,'/'); while (s.length % 4) s += '='; return b64d(s); };
+const hex = u8 => [...new Uint8Array(u8)].map(x => x.toString(16).padStart(2,'0')).join('');
+const hexToU8 = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
+const concat = (a, b) => { const o = new Uint8Array(a.length + b.length); o.set(a, 0); o.set(b, a.length); return o; };
+async function sha256(data){ return new Uint8Array(await crypto.subtle.digest('SHA-256', typeof data === 'string' ? enc(data) : data)); }
+async function pbkdf2(pin, saltB64, iter){ const key = await crypto.subtle.importKey('raw', enc(pin), 'PBKDF2', false, ['deriveBits']); const bits = await crypto.subtle.deriveBits({name:'PBKDF2', salt:b64d(saltB64), iterations:iter, hash:'SHA-256'}, key, 256); return b64e(new Uint8Array(bits)); }
+function canon(o){ return [o.prev || 'GENESE', o.n, o.date, o.piece || '', o.libelle || '', o.cat, o.sens, Math.round(+o.montant || 0), o.compte, o.mode || '', o.tiers || '', o.fin || '', o.justif ? 1 : 0, o.pj || '', o.rev || '', o.note || '', o.b || '', o.createdAt].join('|'); }
+function derToRaw(der){
+  let i = 2; if (der[1] & 0x80) i = 2 + (der[1] & 0x7f);
+  i++; const rl = der[i++]; let r = der.slice(i, i + rl); i += rl;
+  i++; const sl = der[i++]; let s = der.slice(i, i + sl);
+  const fix = x => { while (x.length > 32 && x[0] === 0) x = x.slice(1); const o = new Uint8Array(32); o.set(x, 32 - x.length); return o; };
+  const out = new Uint8Array(64); out.set(fix(r), 0); out.set(fix(s), 32); return out;
+}
+
+/* ================= Préférences de l’appareil ================= */
+const DEVK = 'rfs.device.v1', DATAK = 'rfs.data.v1', AIK = 'rfs.ai.v1';
+const DEV = Object.assign({pin:null, pinLen:4, credIds:[], signBio:true, autoLock:5, fails:0, lockUntil:0}, ls.get(DEVK, {}));
+const saveDev = () => ls.set(DEVK, DEV);
+const AICFG = Object.assign({key:'', model:'claude-haiku-5-5'}, ls.get(AIK, {}));
+const ENV = {
+  inClaude: !!(window.claude && typeof window.claude.use === 'function'),
+  installed: !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true
+};
+
+/* ================= Empreinte digitale (WebAuthn) ================= */
+const BIO = { supported: !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create), platform: null, blocked: false };
+async function bioCheck(){
+  if (!BIO.supported){ BIO.platform = false; return; }
+  try { BIO.platform = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); } catch { BIO.platform = false; }
+}
+function bioErr(e){
+  const m = String(e?.message || '');
+  if (/feature|permissions? policy|not enabled|publickey-credentials|cross-origin|origin/i.test(m) || e?.name === 'SecurityError') return 'bloque';
+  if (e?.name === 'NotAllowedError' || e?.name === 'AbortError') return 'annule';
+  if (e?.name === 'InvalidStateError') return 'existe';
+  if (e?.name === 'NotSupportedError') return 'nonsupporte';
+  return 'erreur';
+}
+function bioMsg(kind){
+  return ({
+    bloque:'Cette fenêtre bloque l’accès au capteur d’empreinte (cadre sécurisé). Utilisez l’application installée, ouverte en HTTPS, pour l’empreinte ; le code PIN protège le registre en attendant.',
+    annule:'Lecture de l’empreinte annulée ou expirée.',
+    existe:'Une empreinte est déjà enregistrée pour ce registre sur cet appareil.',
+    nonsupporte:'Cet appareil ne propose pas de capteur biométrique compatible.',
+    erreur:'Le capteur biométrique n’a pas répondu. Réessayez.'
+  })[kind] || 'Erreur biométrique.';
+}
+const bioUsable = () => BIO.supported && BIO.platform !== false && !BIO.blocked && DEV.credIds.length > 0;
+const bioSignOn = () => bioUsable() && DEV.signBio && !S.demo;
+function deviceLabel(){ const ua = navigator.userAgent; if (/Android/i.test(ua)) return 'Android'; if (/iPhone|iPad/i.test(ua)) return 'iPhone / iPad'; if (/Mac/i.test(ua)) return 'Mac'; if (/Windows/i.test(ua)) return 'Windows'; return 'Appareil'; }
+async function bioEnroll(){
+  const uid = crypto.getRandomValues(new Uint8Array(16));
+  const cred = await navigator.credentials.create({publicKey:{
+    challenge: crypto.getRandomValues(new Uint8Array(32)),
+    rp: {name:'Registre financier scellé'},
+    user: {id:uid, name:'registre-' + b64url(uid).slice(0,8), displayName: D().settings.structure || 'Registre financier'},
+    pubKeyCredParams: [{type:'public-key', alg:-7}, {type:'public-key', alg:-257}],
+    authenticatorSelection: {authenticatorAttachment:'platform', userVerification:'required', residentKey:'discouraged'},
+    timeout: 60000, attestation: 'none'
+  }});
+  const id = b64url(new Uint8Array(cred.rawId));
+  let pk = null, alg = -7;
+  try { const p = cred.response.getPublicKey && cred.response.getPublicKey(); if (p) pk = b64e(new Uint8Array(p)); if (cred.response.getPublicKeyAlgorithm) alg = cred.response.getPublicKeyAlgorithm(); } catch {}
+  return {id, pk, alg, at:new Date().toISOString(), label:deviceLabel()};
+}
+async function bioAssert(challenge){
+  const a = await navigator.credentials.get({publicKey:{
+    challenge, userVerification:'required', timeout:60000,
+    allowCredentials: DEV.credIds.map(id => ({type:'public-key', id:b64urlD(id)}))
+  }});
+  const ad = new Uint8Array(a.response.authenticatorData);
+  if (!(ad[32] & 0x04)) { const e = new Error('Vérification biométrique absente'); e.name = 'NotAllowedError'; throw e; }
+  return {credId:b64url(new Uint8Array(a.rawId)), ad:b64e(ad), cd:b64e(new Uint8Array(a.response.clientDataJSON)), sig:b64e(new Uint8Array(a.response.signature))};
+}
+async function verifySig(op, cred){
+  if (!op.sig || !cred || !cred.pk) return null;
+  try {
+    const cd = b64d(op.sig.cd); const j = JSON.parse(new TextDecoder().decode(cd));
+    if (j.type !== 'webauthn.get' || j.challenge !== b64url(hexToU8(op.hash))) return false;
+    const ad = b64d(op.sig.ad); if (!(ad[32] & 0x04)) return false;
+    const data = concat(ad, await sha256(cd)); const sig = b64d(op.sig.sig);
+    if (cred.alg === -257){ const k = await crypto.subtle.importKey('spki', b64d(cred.pk), {name:'RSASSA-PKCS1-v1_5', hash:'SHA-256'}, false, ['verify']); return await crypto.subtle.verify('RSASSA-PKCS1-v1_5', k, sig, data); }
+    const k = await crypto.subtle.importKey('spki', b64d(cred.pk), {name:'ECDSA', namedCurve:'P-256'}, false, ['verify']);
+    return await crypto.subtle.verify({name:'ECDSA', hash:'SHA-256'}, k, derToRaw(sig), data);
+  } catch { return false; }
+}
+
+/* ================= État et stockage ================= */
+const defaultSettings = () => ({structure:'', responsable:'', exercice:new Date().getFullYear(), soldes:{caisse:0, banque:0, mobile:0, crypto:0}});
+const blankData = () => ({settings:defaultSettings(), fins:[], budget:{}, creds:[], ops:[]});
+let REAL = blankData(), DEMO = null;
+const S = { demo:false, unlocked:false, lockMode:'unlock', view:'accueil', jf:'all', jq:'', integrity:null, net:'', chat:[], proposals:[], audit:'', sheet:null, lastAct:Date.now(), installEvt:null };
+const D = () => (S.demo && DEMO) ? DEMO : REAL;
+
+function applyMeta(d){
+  const st = Object.assign(defaultSettings(), d?.settings || {});
+  st.soldes = Object.assign({caisse:0, banque:0, mobile:0, crypto:0}, d?.settings?.soldes || {});
+  REAL.settings = st;
+  REAL.fins = Array.isArray(d?.fins) ? d.fins.map(x => ({...x})) : [];
+  REAL.budget = Object.assign({}, d?.budget || {});
+  REAL.creds = Array.isArray(d?.creds) ? d.creds.map(x => ({...x})) : [];
+}
+
+const Store = {
+  kind:'init', db:null, uid:null, metaTimer:null, inflight:0, metaQ:Promise.resolve(), readOnly:false, ready:null, _res:null,
+  init(){ this.ready = new Promise(r => { this._res = r; }); },
+  async start(){
+    let db = null, user = null;
+    if (ENV.inClaude){ try { [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); } catch {} }
+    let uid = null; if (user) { try { uid = await user.id(); } catch {} }
+    if (db && uid){ this.kind = 'cloud'; this.db = db; this.uid = uid; this.subscribe(); }
+    else { this.kind = 'local'; this.loadLocal(); this._res(); }
+    dataChanged();
+  },
+  metaRef(){ return this.db.doc(`data/users/${this.uid}/registre`); },
+  opsCol(){ return this.db.doc(`data/users/${this.uid}/journal`).collection('ops'); },
+  subscribe(){
+    let gm = false, go = false;
+    const t = setTimeout(() => { if (!(gm && go)) { S.net = 'Le registre en ligne tarde à répondre : les données affichées peuvent être incomplètes.'; this._res(); refresh(); } }, 10000);
+    const done = () => { if (gm && go){ clearTimeout(t); S.net = ''; this._res(); } };
+    const fail = e => { clearTimeout(t); S.net = 'Connexion au registre en ligne interrompue (' + (e?.code || 'erreur') + '). Rechargez la page plus tard.'; this._res(); refresh(); };
+    try {
+      this.metaRef().onSnapshot(snap => {
+        if (!this.metaTimer && this.inflight === 0) applyMeta(snap.exists ? snap.data() : null);
+        if (!snap.metadata.fromCache){ gm = true; done(); }
+        dataChanged();
+      }, fail);
+      this.opsCol().onSnapshot(qs => {
+        REAL.ops = qs.docs.map(d => Object.assign({}, d.data(), {id:d.id})).sort((a, b) => a.n - b.n);
+        if (!qs.metadata.fromCache){ go = true; done(); }
+        dataChanged();
+      }, fail);
+    } catch (e) { fail(e); }
+  },
+  loadLocal(){
+    const d = ls.get(DATAK, null);
+    if (d){ applyMeta(d); REAL.ops = Array.isArray(d.ops) ? d.ops : []; }
+  },
+  persistLocal(){ if (!ls.set(DATAK, REAL)) toast('Stockage de l’appareil plein ou bloqué : exportez une sauvegarde.'); },
+  saveMeta(){
+    if (S.demo){ dataChanged(); return; }
+    if (this.kind === 'local'){ this.persistLocal(); dataChanged(); return; }
+    if (this.kind !== 'cloud'){ dataChanged(); return; }
+    clearTimeout(this.metaTimer);
+    this.metaTimer = setTimeout(() => {
+      this.metaTimer = null; this.inflight++;
+      const body = JSON.parse(JSON.stringify({v:1, settings:REAL.settings, fins:REAL.fins, budget:REAL.budget, creds:REAL.creds, updatedAt:new Date().toISOString()}));
+      this.metaQ = this.metaQ.then(() => this.metaRef().set(body)).catch(e => {
+        if (e?.code === 'invalid_argument'){ this.readOnly = true; toast('Enregistrement refusé : ce registre est en lecture seule pour vous.'); }
+        else toast('Enregistrement impossible pour le moment (' + (e?.code || 'erreur') + ').');
+      }).finally(() => { this.inflight--; });
+    }, 500);
+    dataChanged();
+  },
+  async addOps(ops){
+    if (S.demo){ DEMO.ops.push(...ops); dataChanged(); return; }
+    REAL.ops.push(...ops); REAL.ops.sort((a, b) => a.n - b.n);
+    if (this.kind === 'local'){ this.persistLocal(); dataChanged(); return; }
+    dataChanged();
+    try {
+      for (const op of ops){ const body = JSON.parse(JSON.stringify(op)); delete body.id; await this.opsCol().doc(op.id).set(body); }
+    } catch (e) {
+      const ids = new Set(ops.map(o => o.id)); REAL.ops = REAL.ops.filter(o => !ids.has(o.id)); dataChanged();
+      throw new Error(e?.code === 'quota_exceeded' ? 'Capacité du registre en ligne atteinte : exportez puis archivez.' : 'Écriture non enregistrée (' + (e?.code || 'erreur') + ').');
+    }
+  }
+};
+
+/* ================= Calculs ================= */
+function loanInfo(f, F){
+  const P = num(f.montant), n = Math.round(num(f.duree)), r = num(f.taux) / 100 / 12;
+  if (!f.remb || P <= 0 || n <= 0) return null;
+  const pmt = r > 0 ? P * r / (1 - Math.pow(1 + r, -n)) : P / n;
+  const rows = []; let cap = P, cum = 0;
+  for (let k = 1; k <= n; k++){ const it = cap * r, pr = pmt - it, end = Math.max(cap - pr, 0); cum += pr; rows.push({k, date: isoValid(f.debut) ? addMonths(f.debut, k-1) : '', cap, it, pr, pmt, end, cum}); cap = end; }
+  const t = todayISO(); const due = rows.filter(x => x.date && x.date <= t);
+  const expCap = due.length ? due[due.length-1].cum : 0;
+  const next = rows.find(x => x.date && x.date > t) || null;
+  const late = !!F && F.recu > 0 && (F.capRemb + 1) < (expCap - pmt * 0.02);
+  return {pmt, rows, expCap, dueCount:due.length, next, late, cout:pmt*n - P};
+}
+function compute(){
+  const d = D(), st = d.settings, y = +st.exercice || new Date().getFullYear();
+  const y0 = `${y}-01-01`, y1 = `${y}-12-31`;
+  const C = {y, acc:{}, months:Array.from({length:12}, () => ({e:0, s:0})), tft:{Exploitation:{e:0,s:0}, Investissement:{e:0,s:0}, Financement:{e:0,s:0}}, cat:{}, fin:{}, enc:0, dec:0, nOps:d.ops.length};
+  ACCS.forEach(a => { C.acc[a.k] = {ouv:num(st.soldes?.[a.k]), e:0, s:0}; });
+  C.reversed = new Set(d.ops.filter(o => o.rev).map(o => o.rev));
+  for (const o of d.ops){
+    const m = +o.montant || 0, c = catOf(o.cat), A = C.acc[o.compte];
+    if (A){ if (o.sens === 'E') A.e += m; else A.s += m; }
+    if (o.date >= y0 && o.date <= y1 && c.f !== 'Interne'){
+      const mi = +o.date.slice(5,7) - 1;
+      if (o.sens === 'E'){ C.enc += m; C.months[mi].e += m; if (C.tft[c.f]) C.tft[c.f].e += m; }
+      else { C.dec += m; C.months[mi].s += m; if (C.tft[c.f]) C.tft[c.f].s += m; }
+      C.cat[c.k] = (C.cat[c.k] || 0) + (((c.s === 'E') === (o.sens === 'E')) ? m : -m);
+    }
+  }
+  C.soldeOuv = 0; C.solde = 0;
+  ACCS.forEach(a => { const x = C.acc[a.k]; x.solde = x.ouv + x.e - x.s; C.soldeOuv += x.ouv; C.solde += x.solde; });
+  let run = C.soldeOuv; C.months.forEach(mo => { mo.deb = run; run += mo.e - mo.s; mo.fin = run; });
+  for (const f of d.fins){
+    const F = {recu:0, utilise:0, capRemb:0, interets:0, n:0};
+    for (const o of d.ops){
+      if (o.fin !== f.code) continue; F.n++;
+      const c = catOf(o.cat), m = +o.montant || 0, sg = o.sens === 'E' ? 1 : -1;
+      if (c.k === 'remb_capital') F.capRemb -= sg * m;
+      else if (c.k === 'interets') F.interets -= sg * m;
+      else if (c.s === 'E') F.recu += sg * m;
+      else if (c.s === 'S' && (c.f === 'Exploitation' || c.f === 'Investissement')) F.utilise -= sg * m;
+    }
+    F.dispo = F.recu - F.utilise; F.reste = Math.max(num(f.montant) - F.recu, 0);
+    F.loan = loanInfo(f, F); F.restantDu = f.remb ? Math.max(F.recu - F.capRemb, 0) : 0;
+    C.fin[f.code] = F;
+  }
+  C.finTot = d.fins.reduce((t, f) => { const F = C.fin[f.code]; t.accorde += num(f.montant); t.recu += F.recu; t.utilise += F.utilise; t.dispo += F.dispo; t.du += F.restantDu; t.pmt += (F.loan && f.statut !== 'Soldé') ? F.loan.pmt : 0; return t; }, {accorde:0, recu:0, utilise:0, dispo:0, du:0, pmt:0});
+  return C;
+}
+const isSigned = (o, d) => !!o.sig || (!!o.b && d.ops.some(x => x.b === o.b && x.sig));
+
+function alerts(C){
+  const d = D(), A = [], t = todayISO(), I = S.integrity;
+  if (I && !I.ok) A.push({lvl:'crit', t:'Rupture de la chaîne d’intégrité', d:`${I.broken.length} anomalie(s), dès l’écriture n° ${I.broken[0].n} : ${I.broken[0].why}.`, go:'securite'});
+  ACCS.forEach(a => { const x = C.acc[a.k]; if (x.solde < -0.5) A.push({lvl:'crit', t:`Solde négatif : ${a.n}`, d:`${fmtS(x.solde)} F CFA. Une entrée ou un virement interne manque probablement.`, go:'tresorerie'}); });
+  CATS.filter(c => c.s === 'S').forEach(c => { const b = num(d.budget[c.k]), r = C.cat[c.k] || 0;
+    if (b > 0 && r > b) A.push({lvl:'crit', t:`Budget dépassé : ${c.n}`, d:`${fmt(r)} F réalisés pour ${fmt(b)} F prévus (${Math.round(r/b*100)} %).`, go:'budget'});
+    else if (b > 0 && r >= 0.9 * b) A.push({lvl:'warn', t:`Budget presque atteint : ${c.n}`, d:`${Math.round(r/b*100)} % du budget consommé.`, go:'budget'}); });
+  d.fins.forEach(f => { const F = C.fin[f.code], L = F?.loan;
+    if (L && f.statut !== 'Soldé'){
+      if (L.late) A.push({lvl:'crit', t:`Remboursement en retard : ${f.code}`, d:`Capital attendu à ce jour ${fmt(L.expCap)} F, remboursé ${fmt(F.capRemb)} F.`, go:'financements'});
+      else if (L.next && daysBetween(t, L.next.date) <= 15) A.push({lvl:'info', t:`Échéance du ${dFR(L.next.date)} : ${f.code}`, d:`${fmt(L.pmt)} F CFA à prévoir pour ${f.bailleur || 'le bailleur'}.`, go:'financements'});
+    }
+    if (F && F.recu > 0 && F.utilise > F.recu + 0.5) A.push({lvl:'warn', t:`${f.code} : dépenses supérieures aux fonds reçus`, d:`Utilisé ${fmt(F.utilise)} F pour ${fmt(F.recu)} F reçus.`, go:'financements'}); });
+  const nopj = d.ops.filter(o => !o.justif && !o.rev && !C.reversed.has(o.id)).length;
+  if (nopj) A.push({lvl:'warn', t:`${nopj} pièce(s) justificative(s) manquante(s)`, d:'Conservez la facture, le reçu ou la capture Mobile Money de chaque opération.', go:'journal', jf:'nopj'});
+  const seen = {}; let dup = 0;
+  d.ops.forEach(o => { if (o.rev || C.reversed.has(o.id) || catOf(o.cat).f === 'Interne') return; const k = [o.date, o.montant, o.cat, o.compte, o.sens].join('|'); if (seen[k]) dup++; else seen[k] = 1; });
+  if (dup) A.push({lvl:'warn', t:`${dup} doublon(s) possible(s)`, d:'Même date, montant, catégorie et compte. Contre-passez l’écriture en trop si nécessaire.', go:'journal'});
+  const fut = d.ops.filter(o => o.date > t).length;
+  if (fut) A.push({lvl:'warn', t:`${fut} écriture(s) datée(s) dans le futur`, d:'Vérifiez la date saisie, puis contre-passez si besoin.', go:'journal'});
+  const out = d.ops.filter(o => o.date && (o.date < `${C.y}-01-01` || o.date > `${C.y}-12-31`)).length;
+  if (out) A.push({lvl:'info', t:`${out} écriture(s) hors de l’exercice ${C.y}`, d:'Elles comptent dans les soldes, pas dans les totaux de l’exercice.', go:'journal'});
+  const o2 = {crit:0, warn:1, info:2}; A.sort((a, b) => o2[a.lvl] - o2[b.lvl]);
+  return A;
+}
+
+let verifyTimer = null, verifySeq = 0;
+function scheduleVerify(){ clearTimeout(verifyTimer); verifyTimer = setTimeout(verifyAll, 250); }
+async function verifyAll(){
+  const seq = ++verifySeq, d = D(), ops = [...d.ops].sort((a, b) => a.n - b.n);
+  const broken = [], sigRes = {}; let prev = 'GENESE';
+  for (let i = 0; i < ops.length; i++){
+    const o = ops[i];
+    if (o.n !== i + 1) broken.push({n:o.n, why:'numérotation discontinue'});
+    if (o.prev !== prev) broken.push({n:o.n, why:'lien avec l’écriture précédente rompu'});
+    let h = ''; try { h = hex(await sha256(canon(o))); } catch {}
+    if (h !== o.hash) broken.push({n:o.n, why:'contenu modifié après scellement'});
+    prev = o.hash;
+    if (o.sig){ const cred = d.creds.find(c => c.id === o.sig.credId); sigRes[o.b || o.id] = await verifySig(o, cred); }
+  }
+  if (seq !== verifySeq) return;
+  let signed = 0, verified = 0;
+  ops.forEach(o => { const r = sigRes[o.b || o.id]; if (r === undefined) return; signed++; if (r === true) verified++; if (r === false && o.sig) broken.push({n:o.n, why:'signature biométrique invalide'}); });
+  S.integrity = {ok:broken.length === 0, broken, total:ops.length, signed, verified, at:new Date()};
+  refresh();
+}
+
+/* ================= Moteur autonome local (analyse du texte) ================= */
+function parseAmount(raw){
+  let s = String(raw).replace(/[  ]/g, ' ');
+  s = s.replace(/\b\d{1,2}[\/.\-]\d{1,2}(?:[\/.\-]\d{2,4})?\b/g, ' ').replace(/\b(pj|fin|n°|no)[\s\-]*\d+/gi, ' ');
+  const re = /(\d{1,3}(?:[ .]\d{3})+|\d+(?:[.,]\d+)?)\s*(millions?|mille|k|m)?(?![a-zà-ÿ])/gi;
+  const cand = []; let mt;
+  while ((mt = re.exec(s))){
+    const tok = mt[1]; let v = /[ .]\d{3}/.test(tok) && !/[.,]\d{1,2}$/.test(tok) ? parseFloat(tok.replace(/[ .]/g, '')) : parseFloat(tok.replace(',', '.'));
+    const mu = (mt[2] || '').toLowerCase();
+    if (mu === 'k' || mu === 'mille') v *= 1000; else if (mu === 'm' || mu.startsWith('million')) v *= 1e6;
+    cand.push({v, year: !mu && /^(19|20)\d{2}$/.test(tok)});
+  }
+  const pool = cand.some(c => !c.year) ? cand.filter(c => !c.year) : cand;
+  return Math.round(pool.reduce((m, c) => Math.max(m, c.v), 0));
+}
+function kwHit(t, kw){ const k = norm(kw); const i = t.indexOf(k); if (i < 0) return false; const before = i === 0 ? ' ' : t[i-1]; return !/[a-z0-9]/.test(before) && (k.length > 3 || !/[a-z0-9]/.test(t[i + k.length] || ' ')); }
+function localParse(text){
+  const t = norm(text), r = {};
+  r.montant = parseAmount(text);
+  const today = todayISO();
+  if (/avant hier/.test(t)) r.date = addDays(today, -2);
+  else if (/\bhier\b/.test(t)) r.date = addDays(today, -1);
+  else { const m = String(text).match(/\b(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?\b/); if (m){ let y = m[3] ? +m[3] : new Date().getFullYear(); if (y < 100) y += 2000; const iso = `${y}-${pad(+m[2],2)}-${pad(+m[1],2)}`; if (isoValid(iso)) r.date = iso; } }
+  if (!r.date) r.date = today;
+  let mode = null, ml = 0; MODES.forEach(m => m.kw.forEach(k => { if (kwHit(t, k) && k.length > ml){ mode = m.k; ml = k.length; } }));
+  r.mode = mode || 'especes';
+  const eHint = /(\brecu\b|\brecu de\b|encaisse|\bvente|\bvendu|versement de|apport|subvention|deblocage|debloque|\bentree|\brevenu|client a paye|client m a paye|paiement client|\bgagne)/.test(t);
+  let best = null, bl = 0;
+  CATS.forEach(c => c.kw.forEach(k => { if (kwHit(t, k) && k.length > bl){ best = c; bl = k.length; } }));
+  const sHint = /(\bpaye\b|\bpaye |\bachat|\bachete|depense|\bregle|\bverse a|\bfrais\b|facture de|\bacquis)/.test(t);
+  if (best && eHint && best.s === 'S' && best.k !== 'remb_capital'){ let b2 = null, l2 = 0; CATS.filter(c => c.s === 'E').forEach(c => c.kw.forEach(k => { if (kwHit(t, k) && k.length > l2){ b2 = c; l2 = k.length; } })); best = b2 || CATS_BY.services; }
+  else if (best && sHint && !eHint && best.s === 'E'){ let b2 = null, l2 = 0; CATS.filter(c => c.s === 'S').forEach(c => c.kw.forEach(k => { if (kwHit(t, k) && k.length > l2){ b2 = c; l2 = k.length; } })); best = b2 || (/prestat/.test(t) ? CATS_BY.honoraires : CATS_BY.autres_ch); }
+  if (!best) best = eHint ? CATS_BY.services : CATS_BY.autres_ch;
+  r.cat = best.k; r.sens = best.s;
+  r.compte = MODES_BY[r.mode].acc;
+  const fm = String(text).match(/FIN[\s\-]?(\d{1,3})/i); if (fm) r.fin = 'FIN-' + pad(+fm[1], 3);
+  const pm = String(text).match(/\b(PJ[\s\-]?\d+|facture\s+(?:n°|no|num[ée]ro)\s*[\w\-]+|re[çc]u\s+(?:n°|no)\s*[\w\-]+)/i); if (pm) r.piece = pm[1].toUpperCase().replace(/\s+/g, ' ');
+  let lib = String(text).trim().replace(/\s+/g, ' '); if (lib.length > 90) lib = lib.slice(0, 88) + '…';
+  r.libelle = lib.charAt(0).toUpperCase() + lib.slice(1);
+  return r;
+}
+
+/* ================= Intelligence artificielle ================= */
+function cleanOpts(o){ const x = {}; for (const k in o) if (o[k] !== undefined && o[k] !== null) x[k] = o[k]; return x; }
+function parseJSONloose(t){
+  try { return JSON.parse(t); } catch {}
+  const f = String(t).match(/```(?:json)?\s*([\s\S]*?)```/); if (f){ try { return JSON.parse(f[1]); } catch {} }
+  const a = Math.min(...['{','['].map(c => { const i = t.indexOf(c); return i < 0 ? Infinity : i; })), b = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+  if (isFinite(a) && b > a){ try { return JSON.parse(t.slice(a, b + 1)); } catch {} }
+  throw {code:'invalid_json'};
+}
+async function shrinkImage(blob){
+  try {
+    const bmp = await createImageBitmap(blob); const sc = Math.min(1, 1568 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const out = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85)); return out || blob;
+  } catch { return blob; }
+}
+async function blobB64(blob){ const buf = new Uint8Array(await blob.arrayBuffer()); return b64e(buf); }
+async function apiCall(system, turns, opt){
+  const tools = opt.tools || null; const msgs = turns.map(t => ({role:t.role, content:t.content}));
+  if (opt.images && opt.images.length){
+    const last = msgs[msgs.length-1], blocks = [];
+    for (const img of opt.images){ const small = await shrinkImage(img); blocks.push({type:'image', source:{type:'base64', media_type:small.type || 'image/jpeg', data:await blobB64(small)}}); }
+    blocks.push({type:'text', text:String(last.content)}); last.content = blocks;
+  }
+  let all = '';
+  for (let round = 0; round < 6; round++){
+    const body = {model:AICFG.model || 'claude-haiku-5-5', max_tokens:opt.max || 1800, messages:msgs};
+    if (system) body.system = system;
+    if (tools) body.tools = tools.map(t => ({name:t.name, description:t.description, input_schema:t.inputSchema || {type:'object', properties:{}}}));
+    let res;
+    try { res = await fetch('https://api.anthropic.com/v1/messages', {method:'POST', signal:opt.signal, headers:{'content-type':'application/json', 'x-api-key':AICFG.key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'}, body:JSON.stringify(body)}); }
+    catch (e) { throw {code: e?.name === 'AbortError' ? 'cancelled' : 'network'}; }
+    if (!res.ok){ let m = ''; try { m = (await res.json())?.error?.message || ''; } catch {} throw {code:'api_' + res.status, message:m}; }
+    const data = await res.json(); const content = data.content || [];
+    const text = content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+    if (text){ all += (all ? '\n\n' : '') + text; opt.onText && opt.onText({text:all}); }
+    const uses = content.filter(b => b.type === 'tool_use');
+    if (data.stop_reason !== 'tool_use' || !uses.length || !tools) return all;
+    msgs.push({role:'assistant', content});
+    const results = [];
+    for (const u of uses){
+      const tool = tools.find(x => x.name === u.name);
+      try { const out = await tool.execute(u.input || {}, {signal:opt.signal}); results.push({type:'tool_result', tool_use_id:u.id, content: typeof out === 'string' ? out : JSON.stringify(out)}); }
+      catch (e) { results.push({type:'tool_result', tool_use_id:u.id, content:'Error: ' + (e?.message || e), is_error:true}); }
+    }
+    msgs.push({role:'user', content:results});
+  }
+  return all;
+}
+const AI = {
+  kind:null, sample:null, limits:null,
+  async init(){
+    if (ENV.inClaude){ try { this.sample = await claude.use('sample'); } catch {} if (this.sample){ this.kind = 'claude'; try { this.limits = await this.sample.limits(); } catch {} } }
+    if (!this.kind && AICFG.key) this.kind = 'api';
+    refresh();
+  },
+  setKey(){ if (this.kind !== 'claude') this.kind = AICFG.key ? 'api' : null; },
+  get images(){ return this.kind === 'api' || !!this.limits?.images; },
+  get tools(){ return this.kind === 'api' || (this.kind === 'claude' && (!this.limits || !!this.limits.tools)); },
+  label(){ return this.kind === 'claude' ? 'Claude (compte Claude)' : this.kind === 'api' ? 'Claude (clé API)' : 'Moteur local'; },
+  async text(prompt, opt = {}){
+    if (this.kind === 'claude'){
+      const input = opt.system ? [{role:'user', content:opt.system}, ...(opt.turns || [{role:'user', content:prompt}])] : (opt.turns || prompt);
+      const r = await this.sample(input, cleanOpts({onText:opt.onText, signal:opt.signal, tools:opt.tools, images:opt.images, modelTier:opt.tier, cache:opt.tools ? undefined : opt.cache}));
+      return r.text;
+    }
+    if (this.kind === 'api') return apiCall(opt.system || '', opt.turns || [{role:'user', content:prompt}], opt);
+    throw {code:'no_ai'};
+  },
+  async json(prompt, opt = {}){
+    if (this.kind === 'claude') return await this.sample.json(prompt, cleanOpts({images:opt.images, modelTier:opt.tier}));
+    return parseJSONloose(await this.text(prompt, opt));
+  },
+  fail(e){ if (this.kind === 'claude' && ['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e?.code)) { this.kind = AICFG.key ? 'api' : null; refresh(); } }
+};
+function aiErr(e){
+  const c = e?.code || '';
+  const M = {not_granted:'L’IA n’a pas été autorisée pour ce registre.', rate_limited:'Trop de demandes : réessayez dans un moment.', refused:'Demande refusée : reformulez-la.', cancelled:'Arrêté.', session_expired:'Session Claude expirée : reconnectez-vous.', sampling_disabled:'L’IA n’est pas disponible pour ce compte.', invalid_json:'Réponse illisible : réessayez.', network:'Pas de connexion Internet.', api_401:'Clé API refusée : vérifiez-la dans Paramètres.', api_403:'Clé API sans autorisation suffisante.', api_429:'Limite de l’API atteinte : réessayez plus tard.', api_400:'Requête refusée par l’API (modèle ou paramètre).', api_404:'Modèle introuvable : choisissez-en un autre dans Paramètres.', api_529:'Service surchargé : réessayez.', images_unavailable:'La lecture d’images n’est pas disponible ici.', no_ai:'Aucune IA connectée.'};
+  return M[c] || ('IA indisponible (' + (c || 'erreur') + ').');
+}
+function extractPrompt(desc, isImage){
+  const d = D();
+  return `Tu es le moteur de saisie d’un registre comptable SYSCOHADA révisé (zone UEMOA, montants en francs CFA, sans décimales). Date du jour : ${todayISO()}.
+${isImage ? 'L’image jointe est un reçu, une facture ou une capture de transaction Mobile Money. Lis-la et transforme-la en une écriture.' : 'Transforme la description ci-dessous en une écriture.'}
+Réponds uniquement par un objet JSON de cette forme :
+{"date":"AAAA-MM-JJ","libelle":"texte court","categorie":"clé","montant":12345,"mode":"clé","compte":"caisse|banque|mobile|crypto","tiers":"nom ou vide","financement":"code FIN-xxx ou vide","piece":"numéro de facture, reçu ou transaction, ou vide","confiance":0.9,"remarque":"ce qui reste à vérifier, ou vide"}
+Catégories (clé — libellé — E entrée, S sortie, I virement interne) :
+${CATS.map(c => `${c.k} — ${c.n} — ${c.s}`).join('\n')}
+Modes de paiement (clé — libellé) : ${MODES.map(m => `${m.k} — ${m.n}`).join(' ; ')}
+Financements enregistrés : ${d.fins.length ? d.fins.map(f => `${f.code} — ${f.bailleur} — ${f.type}`).join(' ; ') : 'aucun'}
+Règles : « hier » et « avant-hier » se calculent depuis la date du jour ; 5k = 5000 ; 1,5 M = 1500000 ; choisis le compte selon le mode (espèces : caisse ; virement, chèque, carte : banque ; Orange Money, MTN, Moov, Wave : mobile ; crypto ou Pi : crypto) ; un remboursement de prêt se découpe en capital (remb_capital) et intérêts (interets) : si un seul montant est donné, mets-le en remb_capital et signale-le dans la remarque.${isImage ? '' : `\nDescription : """${String(desc).slice(0, 1500)}"""`}`;
+}
+function normalizeDraft(x, fallbackText){
+  const d = D(), loc = fallbackText ? localParse(fallbackText) : {};
+  const cat = CATS_BY[x?.categorie] ? x.categorie : (loc.cat || 'autres_ch');
+  const c = CATS_BY[cat];
+  const mode = MODES_BY[x?.mode] ? x.mode : (loc.mode || 'especes');
+  const compte = ACCS_BY[x?.compte] ? x.compte : MODES_BY[mode].acc;
+  return {
+    sens: c.s, cat, mode, compte,
+    montant: Math.round(num(x?.montant)) || loc.montant || 0,
+    date: isoValid(x?.date) ? x.date : (loc.date || todayISO()),
+    libelle: String(x?.libelle || loc.libelle || '').slice(0, 120),
+    tiers: String(x?.tiers || '').slice(0, 80),
+    fin: d.fins.some(f => f.code === x?.financement) ? x.financement : (d.fins.some(f => f.code === loc.fin) ? loc.fin : ''),
+    piece: String(x?.piece || loc.piece || '').slice(0, 40),
+    remarque: String(x?.remarque || ''),
+    confiance: num(x?.confiance)
+  };
+}
+function mdLite(src){
+  const lines = esc(src).split('\n'); let html = '', list = null;
+  const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const close = () => { if (list){ html += `</${list}>`; list = null; } };
+  for (const raw of lines){
+    const l = raw.trim();
+    if (!l){ close(); continue; }
+    let m;
+    if ((m = l.match(/^#{1,4}\s+(.*)/))){ close(); html += `<h4>${inline(m[1])}</h4>`; }
+    else if ((m = l.match(/^[-*•]\s+(.*)/))){ if (list !== 'ul'){ close(); html += '<ul>'; list = 'ul'; } html += `<li>${inline(m[1])}</li>`; }
+    else if ((m = l.match(/^\d+[.)]\s+(.*)/))){ if (list !== 'ol'){ close(); html += '<ol>'; list = 'ol'; } html += `<li>${inline(m[1])}</li>`; }
+    else { close(); html += `<p>${inline(l)}</p>`; }
+  }
+  close(); return html;
+}
+function summaryData(){
+  const d = D(), C = compute();
+  return {
+    structure:d.settings.structure, exercice:C.y, date_du_jour:todayISO(), devise:'F CFA',
+    tresorerie_totale:Math.round(C.solde),
+    soldes_par_compte:Object.fromEntries(ACCS.map(a => [a.n, Math.round(C.acc[a.k].solde)])),
+    encaissements_exercice:Math.round(C.enc), decaissements_exercice:Math.round(C.dec),
+    flux_par_activite:Object.fromEntries(Object.entries(C.tft).map(([k, v]) => [k, {encaissements:Math.round(v.e), decaissements:Math.round(v.s), net:Math.round(v.e - v.s)}])),
+    financements:{accorde:Math.round(C.finTot.accorde), recu:Math.round(C.finTot.recu), utilise:Math.round(C.finTot.utilise), disponible:Math.round(C.finTot.dispo), capital_restant_du:Math.round(C.finTot.du)},
+    nombre_ecritures:d.ops.length,
+    integrite: S.integrity ? (S.integrity.ok ? 'chaîne intègre' : 'rupture détectée') : 'non vérifiée',
+    alertes: alerts(C).map(a => a.t + ' — ' + a.d)
+  };
+}
+function finsData(){ const d = D(), C = compute(); return d.fins.map(f => { const F = C.fin[f.code], L = F.loan; return {code:f.code, bailleur:f.bailleur, type:f.type, objet:f.objet, statut:f.statut, accorde:num(f.montant), recu:Math.round(F.recu), utilise:Math.round(F.utilise), disponible:Math.round(F.dispo), remboursable:!!f.remb, taux_annuel_pct:num(f.taux), duree_mois:num(f.duree), mensualite:L ? Math.round(L.pmt) : 0, capital_rembourse:Math.round(F.capRemb), interets_payes:Math.round(F.interets), capital_restant_du:Math.round(F.restantDu), prochaine_echeance:L?.next?.date || '', en_retard:!!L?.late}; }); }
+function budgetData(){ const d = D(), C = compute(); return CATS.filter(c => c.s !== 'I').map(c => ({categorie:c.k, libelle:c.n, compte:c.c, nature:c.s === 'E' ? 'entrée' : 'sortie', prevu:num(d.budget[c.k]), realise:Math.round(C.cat[c.k] || 0)})).filter(x => x.prevu || x.realise); }
+function opsData(i = {}){
+  const d = D(); const q = norm(i.recherche || ''); const lim = Math.min(Math.max(Math.round(num(i.limite)) || 40, 1), 80);
+  return [...d.ops].sort((a, b) => b.n - a.n).filter(o => (!i.du || o.date >= i.du) && (!i.au || o.date <= i.au) && (!i.categorie || o.cat === i.categorie) && (!i.sens || o.sens === i.sens) && (!i.financement || o.fin === i.financement) && (!q || norm([o.libelle, o.tiers, o.piece].join(' ')).includes(q))).slice(0, lim)
+    .map(o => ({n:o.n, date:o.date, piece:o.piece, libelle:o.libelle, categorie:o.cat, compte_syscohada:catOf(o.cat).c, sens:o.sens, montant:o.montant, tresorerie:accN(o.compte), mode:modeN(o.mode), tiers:o.tiers, financement:o.fin, piece_justificative:!!o.justif, contre_passation_de:o.rev ? (d.ops.find(x => x.id === o.rev)?.n || '') : ''}));
+}
+
+/* ================= Écritures scellées ================= */
+function nextPiece(){ let mx = 0; D().ops.forEach(o => { const m = String(o.piece || '').match(/^PJ-(\d+)$/); if (m) mx = Math.max(mx, +m[1]); }); return 'PJ-' + pad(mx + 1, 4); }
+async function recordOps(drafts){
+  if (Store.readOnly && !S.demo) throw new Error('Ce registre est en lecture seule pour vous.');
+  const d = D(); const last = [...d.ops].sort((a, b) => a.n - b.n).pop();
+  let prev = last?.hash || 'GENESE', n = last?.n || 0;
+  const b = drafts.length > 1 ? 'b' + rid() : ''; const now = new Date().toISOString(); const out = [];
+  for (const dr of drafts){
+    n++;
+    const op = {id:'op' + rid(), n, prev, createdAt:now, date:dr.date, piece:dr.piece || '', libelle:dr.libelle || '', cat:dr.cat, sens:dr.sens, montant:Math.round(num(dr.montant)), compte:dr.compte, mode:dr.mode || '', tiers:dr.tiers || '', fin:dr.fin || '', justif:!!dr.justif, pj:'', rev:dr.rev || '', note:dr.note || '', b};
+    op.hash = hex(await sha256(canon(op))); prev = op.hash; out.push(op);
+  }
+  let how = 'scellee';
+  if (bioSignOn()){
+    try { out[out.length-1].sig = await bioAssert(hexToU8(out[out.length-1].hash)); how = 'signee'; }
+    catch (e) { const k = bioErr(e); if (k === 'annule') throw new Error('Signature par empreinte annulée : rien n’a été enregistré.'); if (k === 'bloque') BIO.blocked = true; how = 'sansbio'; }
+  }
+  await Store.addOps(out);
+  S.lastAct = Date.now();
+  return {ops:out, how};
+}
+function recordedMsg(r, label){ const pl = r.ops.length > 1, n = r.ops.map(o => 'n° ' + o.n).join(' et '), e = pl ? 'es' : 'e', w = (label || 'Écriture') + (pl ? 's' : ''); return r.how === 'signee' ? `${w} ${n} signée${pl ? 's' : ''} par empreinte et scellée${pl ? 's' : ''}.` : r.how === 'sansbio' ? `${w} ${n} scellée${pl ? 's' : ''} (empreinte indisponible ici).` : `${w} ${n} scellé${e}.`; }
+
+/* ================= Rendu ================= */
+const NAV = [['accueil','Accueil','home'],['journal','Journal','book'],['financements','Financements','coins'],['assistant','Assistant IA','spark'],['plus','Plus','grid']];
+const VIEWS = ['accueil','journal','financements','assistant','plus','budget','tresorerie','securite','parametres'];
+const viewFromHash = () => { const h = location.hash.replace('#', ''); return VIEWS.includes(h) ? h : 'accueil'; };
+function go(v){ if (location.hash !== '#' + v) location.hash = v; else { S.view = v; render(); } window.scrollTo(0, 0); }
+let rafPending = false;
+function refresh(){ if (!S.unlocked || rafPending) return; rafPending = true; requestAnimationFrame(() => { rafPending = false; render(); }); }
+function dataChanged(){ scheduleVerify(); refresh(); }
+function render(){
+  if (!S.unlocked) return;
+  const ae = document.activeElement;
+  if (ae && $('#main').contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){ S.deferRender = true; renderChrome(); return; }
+  S.deferRender = false;
+  renderChrome();
+  const C = compute(); const v = S.view;
+  const html = v === 'journal' ? vJournal(C) : v === 'financements' ? vFinancements(C) : v === 'assistant' ? vAssistant(C) : v === 'plus' ? vPlus() : v === 'budget' ? vBudget(C) : v === 'tresorerie' ? vTresorerie(C) : v === 'securite' ? vSecurite() : v === 'parametres' ? vParametres() : vAccueil(C);
+  $('#main').innerHTML = html;
+}
+function renderChrome(){
+  const d = D();
+  $('#brandMark').innerHTML = logoSVG(40, '--surface');
+  $('#lockBtn').innerHTML = ic('lock');
+  $('#lockBtn').hidden = !DEV.pin;
+  $('#brandSub').textContent = (d.settings.structure || 'Structure à nommer') + ' · ' + (d.settings.exercice || '');
+  $('#modePill').textContent = S.demo ? 'Démonstration' : Store.kind === 'cloud' ? 'Compte Claude' : Store.kind === 'local' ? 'Cet appareil' : 'Connexion…';
+  $('#fab').innerHTML = ic('plus') + '<span>Opération</span>';
+  const cur = ['budget','tresorerie','securite','parametres'].includes(S.view) ? 'plus' : S.view;
+  $('#nav').innerHTML = NAV.map(([k, l, i]) => `<a href="#${k}" ${cur === k ? 'aria-current="page"' : ''}>${ic(i)}<span>${l}</span></a>`).join('');
+  let b = '';
+  if (S.demo) b += `<div class="banner"><span><b>Démonstration</b> : données fictives, rien n’est enregistré.</span><button class="btn" type="button" data-act="demo-exit">Quitter la démonstration</button></div>`;
+  if (S.net) b += `<div class="banner n"><span>${esc(S.net)}</span></div>`;
+  if (!STORAGE_OK) b += `<div class="banner n"><span>Le stockage de cet appareil est bloqué : le verrou et l’enregistrement hors ligne sont désactivés.</span></div>`;
+  if (Store.readOnly && !S.demo) b += `<div class="banner n"><span>Lecture seule : vos modifications ne peuvent pas être enregistrées.</span></div>`;
+  $('#banners').innerHTML = b;
+}
+const tile = (k, v, cls = '', vc = '') => `<div class="tile ${cls}"><div class="tile-k">${k}</div><div class="tile-v ${vc}">${fmtS(v)}<small>F CFA</small></div></div>`;
+const kv = (k, v, cls = '', txt = false) => `<div class="${cls}"><dt>${k}</dt><dd class="${txt ? 'txt' : ''}">${txt ? v : fmtS(v)}</dd></div>`;
+function sealLine(C){
+  const I = S.integrity, d = D();
+  if (!d.ops.length) return `<div class="seal-line">${ic('fp')}<span>Registre prêt. Chaque écriture sera scellée par une empreinte numérique SHA-256 chaînée${bioUsable() ? ' et signée par votre empreinte digitale' : ''}.</span></div>`;
+  if (!I) return `<div class="seal-line">${ic('fp')}<span>Vérification de l’intégrité en cours…</span></div>`;
+  if (!I.ok) return `<button class="seal-line bad" type="button" data-go="securite">${ic('shield')}<span><b>Rupture détectée</b> : ${I.broken.length} anomalie(s). Voir le détail.</span></button>`;
+  return `<button class="seal-line" type="button" data-go="securite">${ic('fp')}<span><b>Registre intègre</b> · ${I.total} écriture(s) scellée(s) · ${I.signed} signée(s) par empreinte</span></button>`;
+}
+const alertRow = a => `<li><button class="alert" type="button" data-go="${a.go}" ${a.jf ? `data-jfgo="${a.jf}"` : ''}><span class="sev ${a.lvl}"></span><span><span class="alert-t" style="display:block">${esc(a.t)}</span><span class="alert-d" style="display:block">${esc(a.d)}</span></span><span class="chev">›</span></button></li>`;
+function emptyStart(){
+  return `<div class="empty"><h2>Première écriture</h2><p class="muted small">Décrivez l’opération en une phrase (« Payé 25 000 F d’Internet par Orange Money hier ») : le moteur autonome remplit la catégorie, le compte SYSCOHADA et le compte de trésorerie. Vous validez par empreinte ou code PIN.</p><div class="btns"><button class="btn seal" type="button" data-act="newop">${ic('plus')}Saisir une opération</button><button class="btn" type="button" data-act="newfin">${ic('coins')}Enregistrer un financement</button>${S.demo ? '' : `<button class="btn ghost" type="button" data-act="demo">${ic('play')}Voir la démonstration</button>`}</div></div>`;
+}
+function chartMonths(C){
+  const W = 360, H = 190, L = 42, R = 6, T = 10, B = 24, iw = W - L - R, ih = H - T - B;
+  const max = niceMax(Math.max(1, ...C.months.map(m => Math.max(m.e, m.s))));
+  const gw = iw / 12, bw = Math.max(3, (gw - 6) / 2); let g = '';
+  [0, .25, .5, .75, 1].forEach(f => { const v = f * max, yy = T + ih - f * ih; g += `<line x1="${L}" x2="${W - R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" style="stroke:var(--line)" stroke-width="1"/><text x="${L - 6}" y="${(yy + 3.5).toFixed(1)}" text-anchor="end" font-size="9.5" style="fill:var(--muted);font-family:var(--f-mono)">${fmtC(v)}</text>`; });
+  C.months.forEach((m, i) => { const x0 = L + i * gw + 3, he = m.e / max * ih, hs = m.s / max * ih;
+    g += `<rect x="${x0.toFixed(1)}" y="${(T + ih - he).toFixed(1)}" width="${bw.toFixed(1)}" height="${he.toFixed(1)}" rx="1.5" style="fill:var(--pos)"><title>${MOIS[i]} : encaissements ${fmt(m.e)} F CFA</title></rect>`;
+    g += `<rect x="${(x0 + bw).toFixed(1)}" y="${(T + ih - hs).toFixed(1)}" width="${bw.toFixed(1)}" height="${hs.toFixed(1)}" rx="1.5" style="fill:var(--neg)"><title>${MOIS[i]} : décaissements ${fmt(m.s)} F CFA</title></rect>`;
+    g += `<text x="${(L + i * gw + gw / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">${MOIS[i][0]}</text>`; });
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Encaissements et décaissements par mois, en francs CFA">${g}</svg><div class="legend"><span><i style="background:var(--pos)"></i>Encaissements</span><span><i style="background:var(--neg)"></i>Décaissements</span></div></div>`;
+}
+function accKV(C){
+  return `<dl class="kv">${ACCS.map(a => `<div><dt>${a.n}${a.c ? ` <span class="chip">${a.c}</span>` : ''}</dt><dd class="${C.acc[a.k].solde < -0.5 ? 'neg' : ''}">${fmtS(C.acc[a.k].solde)}</dd></div>`).join('')}<div class="tot"><dt>Trésorerie totale</dt><dd>${fmtS(C.solde)}</dd></div></dl>`;
+}
+function rowHTML(o, C){
+  const c = catOf(o.cat), d = D(), rv = C.reversed.has(o.id), sg = isSigned(o, d); const [, m, dd] = (o.date || '----').split('-');
+  return `<li><button class="row ${rv ? 'rev' : ''}" type="button" data-op="${esc(o.id)}"><span class="r-date"><b>${dd || ''}</b><span>${MOIS_C[+m - 1] || ''}</span></span><span class="r-main"><span class="r-lib" style="display:block">${esc(o.libelle || c.n)}</span><span class="r-meta" style="display:block">${esc([o.piece, (c.c ? c.c + ' ' : '') + c.n, accN(o.compte), o.fin].filter(Boolean).join(' · '))}</span></span><span class="r-amt ${o.sens === 'E' ? 'pos' : 'neg'}">${o.sens === 'E' ? '+' : '−'}${fmt(o.montant)}</span><span class="r-seal ${sg ? '' : 'none'}" title="${sg ? 'Signée par empreinte et scellée' : 'Scellée'}">${ic(sg ? 'fp' : 'shield')}</span></button></li>`;
+}
+function vAccueil(C){
+  const d = D(), A = alerts(C), last = [...d.ops].sort((a, b) => b.n - a.n).slice(0, 5);
+  return `
+  <section class="blk">
+    <div class="eyebrow">Exercice ${C.y} · F CFA · SYSCOHADA révisé</div>
+    <h1>${esc(d.settings.structure || 'Votre structure')}</h1>
+    ${sealLine(C)}
+  </section>
+  <div class="tiles">
+    ${tile('Trésorerie totale', C.solde, 'lead')}
+    ${tile('Encaissements ' + C.y, C.enc, '', 'pos')}
+    ${tile('Décaissements ' + C.y, C.dec, '', 'neg')}
+    ${tile('Fonds de financement disponibles', C.finTot.dispo)}
+  </div>
+  ${d.ops.length ? '' : emptyStart()}
+  <section class="blk">
+    <div class="blk-h"><h2>Surveillance autonome</h2><span class="muted small">${A.length ? A.length + ' point(s) à traiter' : 'Rien à signaler'}</span></div>
+    ${A.length ? `<ul class="alerts">${A.slice(0, 7).map(alertRow).join('')}</ul>` : `<div class="alert"><span class="sev ok"></span><span><span class="alert-t" style="display:block">Tout est en ordre</span><span class="alert-d" style="display:block">Soldes positifs, pièces présentes, budget et échéances respectés, chaîne intègre.</span></span><span></span></div>`}
+  </section>
+  <section class="blk"><div class="blk-h"><h2>Mouvements mensuels ${C.y}</h2><button class="link" type="button" data-go="tresorerie">Trésorerie détaillée</button></div>${chartMonths(C)}</section>
+  <section class="blk"><div class="blk-h"><h2>Soldes par compte</h2></div>${accKV(C)}</section>
+  <section class="blk"><div class="blk-h"><h2>Dernières écritures</h2>${d.ops.length ? '<button class="link" type="button" data-go="journal">Tout le journal</button>' : ''}</div>${last.length ? `<ol class="ledger">${last.map(o => rowHTML(o, C)).join('')}</ol>` : '<p class="muted small">Les écritures apparaîtront ici.</p>'}</section>`;
+}
+function vJournal(C){
+  const d = D();
+  if (!d.ops.length) return `<section class="blk"><h1>Journal</h1>${emptyStart()}</section>`;
+  const filters = [['all','Tout'],['E','Entrées'],['S','Sorties'],['nopj','Sans pièce'],['sig','Signées'], ...ACCS.map(a => [a.k, a.n])];
+  return `<section class="blk"><div class="blk-h"><h1>Journal</h1><span class="muted small">${d.ops.length} écriture(s) scellée(s)</span></div>
+    <div class="toolbar"><input id="q" class="search" type="search" placeholder="Rechercher : libellé, tiers, pièce, montant…" value="${esc(S.jq)}" aria-label="Rechercher dans le journal">
+    <div class="chips-row" role="toolbar" aria-label="Filtres">${filters.map(([k, l]) => `<button class="fchip" type="button" data-jf="${k}" aria-pressed="${S.jf === k}">${l}</button>`).join('')}</div></div>
+    <div id="ledgerBox">${ledgerHTML(C)}</div></section>`;
+}
+function ledgerHTML(C){
+  const d = D(), q = norm(S.jq || ''), f = S.jf;
+  const ops = [...d.ops].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.n - a.n).filter(o => {
+    if (f === 'E' && o.sens !== 'E') return false; if (f === 'S' && o.sens !== 'S') return false;
+    if (f === 'nopj' && (o.justif || o.rev || C.reversed.has(o.id))) return false; if (f === 'sig' && !isSigned(o, d)) return false;
+    if (ACCS_BY[f] && o.compte !== f) return false;
+    if (q){ const c = catOf(o.cat); if (!norm([o.libelle, o.tiers, o.piece, o.fin, c.n, c.c, o.montant, 'n' + o.n].join(' ')).includes(q)) return false; }
+    return true; });
+  if (!ops.length) return '<p class="muted">Aucune écriture ne correspond.</p>';
+  const e = ops.filter(o => o.sens === 'E').reduce((s, o) => s + o.montant, 0), s = ops.filter(o => o.sens === 'S').reduce((t, o) => t + o.montant, 0);
+  let html = '', cur = '';
+  for (const o of ops){ const k = (o.date || '').slice(0, 7); if (k !== cur){ cur = k; const n = ops.filter(x => (x.date || '').startsWith(k)).length; html += `<li class="mh"><span>${MOIS[+k.slice(5, 7) - 1] || ''} ${k.slice(0, 4)}</span><span>${n} écr.</span></li>`; } html += rowHTML(o, C); }
+  return `<p class="small muted">${ops.length} écriture(s) · <span class="pos">+${fmt(e)}</span> · <span class="neg">−${fmt(s)}</span> F CFA</p><ol class="ledger">${html}</ol>`;
+}
+function finCard(f, C){
+  const F = C.fin[f.code], L = F.loan, acc = num(f.montant);
+  const pr = acc > 0 ? Math.min(100, F.recu / acc * 100) : 0, pu = F.recu > 0 ? Math.min(100, F.utilise / F.recu * 100) : 0;
+  const st = f.statut || 'Accordé'; const stc = /Soldé|Reçu en totalité/.test(st) ? 'e' : /Refusé/.test(st) ? 's' : /remboursement/.test(st) ? 'o' : 'i';
+  return `<article class="fin">
+    <div class="fin-top"><span class="code">${esc(f.code)}</span><span class="chip">${esc(f.type || '')}</span><span class="chip ${stc}">${esc(st)}</span>${L?.late ? '<span class="chip s">En retard</span>' : ''}</div>
+    <div><h3>${esc(f.bailleur || 'Bailleur')}</h3>${f.objet ? `<p class="muted small">${esc(f.objet)}</p>` : ''}</div>
+    <div class="barrow"><div class="barrow-l"><span>Reçu</span><span><b>${fmt(F.recu)}</b> / ${fmt(acc)} F</span></div><div class="bar"><i style="width:${pr.toFixed(1)}%"></i></div></div>
+    <div class="barrow"><div class="barrow-l"><span>Utilisé</span><span><b>${fmt(F.utilise)}</b> / ${fmt(F.recu)} F</span></div><div class="bar ${pu >= 100 ? 'n' : 'o'}"><i style="width:${pu.toFixed(1)}%"></i></div></div>
+    <dl class="kv">${kv('Disponible', F.dispo)}${f.remb && L ? kv('Mensualité', L.pmt) + kv('Capital restant dû', F.restantDu) + kv('Prochaine échéance', L.next ? dFR(L.next.date) : '—', '', true) : ''}${!f.remb ? kv('Reste à recevoir', F.reste) : ''}</dl>
+    <div class="btns">${L ? `<button class="btn" type="button" data-sched="${esc(f.code)}">${ic('chart')}Échéancier</button>` : ''}<button class="btn" type="button" data-editfin="${esc(f.code)}">Modifier</button><button class="btn ghost" type="button" data-opfin="${esc(f.code)}">${ic('plus')}Mouvement</button></div>
+  </article>`;
+}
+function vFinancements(C){
+  const d = D(), T = C.finTot;
+  return `<section class="blk"><div class="blk-h"><h1>Financements</h1><button class="btn primary" type="button" data-act="newfin">${ic('plus')}Nouveau financement</button></div>
+  ${d.fins.length ? `<dl class="kv">${kv('Montant accordé', T.accorde)}${kv('Reçu', T.recu)}${kv('Utilisé (dépenses financées)', T.utilise)}${kv('Disponible', T.dispo)}${kv('Capital restant dû', T.du)}${kv('Mensualités en cours', T.pmt, 'tot')}</dl><div class="fins">${d.fins.map(f => finCard(f, C)).join('')}</div>`
+  : `<div class="empty"><h2>Aucun financement enregistré</h2><p class="muted small">Enregistrez chaque source : fonds propres, apport des associés, prêt bancaire ou de microfinance, subvention, investisseur, prévente de jetons. Liez ensuite les encaissements et les dépenses à leur code FIN-001, FIN-002… pour suivre le reçu, l’utilisé et le disponible.</p><button class="btn primary" type="button" data-act="newfin">${ic('plus')}Enregistrer un financement</button></div>`}
+  <p class="hint">Le reçu et l’utilisé se calculent depuis le journal : choisissez le financement dans « Financement lié » lors de la saisie. Un remboursement de prêt se saisit en deux lignes : capital (162) et intérêts (671).</p></section>`;
+}
+function vBudget(C){
+  const d = D(); const grp = s => CATS.filter(c => c.s === s);
+  const tot = s => grp(s).reduce((t, c) => { t.p += num(d.budget[c.k]); t.r += C.cat[c.k] || 0; return t; }, {p:0, r:0});
+  const te = tot('E'), tsx = tot('S');
+  const rowB = c => { const b = num(d.budget[c.k]), r = C.cat[c.k] || 0, pct = b > 0 ? r / b * 100 : 0;
+    const chip = !b ? '' : c.s === 'S' ? (pct > 100 ? '<span class="chip s">Dépassé</span>' : pct >= 90 ? '<span class="chip w">≥ 90 %</span>' : '<span class="chip e">Dans le budget</span>') : (pct >= 100 ? '<span class="chip e">Objectif atteint</span>' : '<span class="chip i">En cours</span>');
+    return `<div class="brow"><div class="bn"><b>${c.n}</b><span class="muted small">Compte ${c.c}</span></div><input class="in bin" type="text" inputmode="numeric" data-bud="${c.k}" id="bud_${c.k}" value="${b ? fmt(b) : ''}" placeholder="Prévu" aria-label="Budget prévu : ${esc(c.n)}">
+    <div class="bfoot"><div class="barrow-l"><span>Réalisé <b>${fmt(r)}</b> F${b ? ` · ${Math.round(pct)} %` : ''}</span>${chip}</div>${b ? `<div class="bar ${c.s === 'S' ? (pct > 100 ? 'n' : pct >= 90 ? 'o' : '') : 'p'}"><i style="width:${Math.min(100, pct).toFixed(1)}%"></i></div>` : ''}</div></div>`; };
+  return `<section class="blk"><div class="blk-h"><h1>Budget ${C.y}</h1><button class="link" type="button" data-go="plus">Retour</button></div>
+  <dl class="kv">${kv('Encaissements prévus', te.p)}${kv('Encaissements réalisés', te.r)}${kv('Décaissements prévus', tsx.p)}${kv('Décaissements réalisés', tsx.r)}${kv('Solde prévu', te.p - tsx.p, 'tot')}${kv('Solde réalisé', te.r - tsx.r, 'tot')}</dl>
+  <p class="hint">Saisissez le montant annuel prévu par catégorie (F CFA). Le réalisé vient du journal de l’exercice ; une alerte apparaît à 90 % et en cas de dépassement.</p>
+  <h2>Décaissements</h2><div class="blist">${grp('S').map(rowB).join('')}</div>
+  <h2>Encaissements</h2><div class="blist">${grp('E').map(rowB).join('')}</div></section>`;
+}
+function vTresorerie(C){
+  const rows = C.months.map((m, i) => `<tr><td>${MOIS[i]}</td><td class="num">${fmtS(m.deb)}</td><td class="num pos">${fmt(m.e)}</td><td class="num neg">${fmt(m.s)}</td><td class="num">${fmtS(m.e - m.s)}</td><td class="num ${m.fin < 0 ? 'neg' : ''}">${fmtS(m.fin)}</td></tr>`).join('');
+  const tft = ['Exploitation','Investissement','Financement'].map(k => `<tr><td>${k}</td><td class="num">${fmt(C.tft[k].e)}</td><td class="num">${fmt(C.tft[k].s)}</td><td class="num">${fmtS(C.tft[k].e - C.tft[k].s)}</td></tr>`).join('');
+  const te = Object.values(C.tft).reduce((t, v) => t + v.e, 0), tsx = Object.values(C.tft).reduce((t, v) => t + v.s, 0);
+  return `<section class="blk"><div class="blk-h"><h1>Trésorerie ${C.y}</h1><button class="link" type="button" data-go="plus">Retour</button></div>
+  <h2>Évolution mensuelle (F CFA)</h2>
+  <div class="scroll"><table class="tbl"><thead><tr><th>Mois</th><th>Solde début</th><th>Encaissements</th><th>Décaissements</th><th>Flux net</th><th>Solde fin</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>Exercice</td><td class="num">${fmtS(C.soldeOuv)}</td><td class="num">${fmt(C.enc)}</td><td class="num">${fmt(C.dec)}</td><td class="num">${fmtS(C.enc - C.dec)}</td><td class="num">${fmtS(C.months[11].fin)}</td></tr></tfoot></table></div>
+  <h2>Soldes par compte</h2>${accKV(C)}
+  <h2>Flux de trésorerie par activité (TFT simplifié)</h2>
+  <div class="scroll"><table class="tbl"><thead><tr><th>Activité</th><th>Encaissements</th><th>Décaissements</th><th>Flux net</th></tr></thead><tbody>${tft}</tbody><tfoot><tr><td>Variation de trésorerie</td><td class="num">${fmt(te)}</td><td class="num">${fmt(tsx)}</td><td class="num">${fmtS(te - tsx)}</td></tr></tfoot></table></div>
+  <p class="hint">Les virements internes (banque vers caisse, recharge Mobile Money) modifient les soldes par compte mais sont exclus des encaissements et décaissements.</p></section>`;
+}
+function vAssistant(C){
+  const sugg = ['Quel est mon solde de trésorerie ?','Où en est le remboursement de mes prêts ?','Quelles dépenses dépassent le budget ?','Enregistre : carburant 15 000 F en espèces hier'];
+  if (!AI.kind) return `<section class="blk"><h1>Assistant IA</h1>
+    <div class="report"><h2>Moteur autonome local : actif</h2><p>Sans connexion à Claude, le registre classe déjà vos saisies (catégorie, compte SYSCOHADA, compte de trésorerie) et surveille en continu les soldes, le budget, les échéances de prêt, les doublons, les pièces manquantes et l’intégrité de la chaîne.</p>
+    <h2>Activer l’assistant Claude</h2><ol style="margin:0;padding-left:20px"><li>Dans l’application Claude, l’assistant s’active automatiquement avec votre compte.</li><li>Dans l’application installée sur votre téléphone, ajoutez votre clé API dans Plus, puis Paramètres.</li></ol>
+    <div class="btns"><button class="btn primary" type="button" data-go="parametres">${ic('gear')}Ouvrir les paramètres</button><button class="btn" type="button" data-go="accueil">Voir les alertes</button></div></div></section>`;
+  const chat = S.chat.map((m, i) => `<div class="msg ${m.role === 'user' ? 'u' : 'a md'}" id="msg${i}">${m.role === 'user' ? esc(m.content) : mdLite(m.content)}</div>`).join('');
+  return `<section class="blk"><div class="blk-h"><h1>Assistant IA</h1><span class="pill">${esc(AI.label())}</span></div>
+  <div class="report" id="auditBox"><div class="blk-h"><h2>Audit autonome</h2><button class="btn primary" type="button" data-act="audit" id="auditBtn">${ic('spark')}${S.audit ? 'Relancer l’audit' : 'Lancer l’audit'}</button></div>
+  <div id="auditOut" class="md">${S.audit ? mdLite(S.audit) : '<p class="muted">L’IA examine soldes, budget, financements, échéances et pièces justificatives, puis propose des actions numérotées.</p>'}</div></div>
+  <section class="blk"><h2>Discussion</h2>
+  <div class="chat" id="chat">${chat || '<p class="muted small">Posez une question sur vos finances ou dictez une opération : l’assistant la prépare, vous la validez par empreinte ou code PIN.</p>'}</div>
+  <div id="props">${propsHTML()}</div>
+  <div class="chips-row">${sugg.map(s => `<button class="fchip" type="button" data-sugg="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+  <div class="composer"><textarea id="ask" class="in" rows="2" placeholder="Votre question ou opération…" aria-label="Message pour l’assistant"></textarea><button class="btn primary" type="button" data-act="send" id="sendBtn">Envoyer</button></div>
+  <p class="status" id="aiStatus"></p></section></section>`;
+}
+function propsHTML(){
+  return S.proposals.map((p, i) => { const c = catOf(p.cat);
+    return `<div class="prop"><div class="fin-top"><span class="chip o">Proposition de l’assistant</span><span class="chip ${c.s === 'E' ? 'e' : 's'}">${c.s === 'E' ? 'Entrée' : 'Sortie'}</span></div><b>${esc(p.libelle || c.n)}</b><span class="small muted">${dFR(p.date)} · ${c.c} ${esc(c.n)} · ${esc(accN(p.compte))} · ${esc(modeN(p.mode))}${p.fin ? ' · ' + esc(p.fin) : ''}</span><span class="big-amt ${c.s === 'E' ? 'pos' : 'neg'}">${fmt(p.montant)} F CFA</span><div class="btns"><button class="btn seal" type="button" data-prop="${i}">${ic('fp')}Vérifier et signer</button><button class="btn ghost" type="button" data-propx="${i}">Ignorer</button></div></div>`; }).join('');
+}
+function vPlus(){
+  const items = [
+    ['budget','chart','Budget','Prévu, réalisé, alertes de dépassement'],
+    ['tresorerie','wallet','Trésorerie','Soldes mensuels, comptes, flux par activité'],
+    ['securite','shield','Sécurité et intégrité','Empreinte digitale, code PIN, contrôle de la chaîne'],
+    ['parametres','gear','Paramètres','Structure, exercice, soldes d’ouverture, IA, sauvegardes']
+  ];
+  let extra = `<button class="mitem" type="button" data-act="xlsx">${ic('down')}<b>Exporter en Excel</b><span>Journal, financements, échéanciers, budget, trésorerie</span></button>`;
+  if (ENV.inClaude) extra += `<button class="mitem" type="button" data-act="dlapp">${ic('phone')}<b>Télécharger l’application</b><span>Fichier .zip à installer sur votre téléphone</span></button>`;
+  if (S.installEvt) extra += `<button class="mitem" type="button" data-act="install">${ic('phone')}<b>Installer l’application</b><span>Icône sur l’écran d’accueil, hors ligne</span></button>`;
+  extra += S.demo ? `<button class="mitem" type="button" data-act="demo-exit">${ic('x')}<b>Quitter la démonstration</b><span>Revenir à votre registre</span></button>` : `<button class="mitem" type="button" data-act="demo">${ic('play')}<b>Démonstration</b><span>Explorer avec des données fictives</span></button>`;
+  return `<section class="blk"><h1>Plus</h1><div class="menu">${items.map(([v, i, t, s]) => `<a class="mitem" href="#${v}">${ic(i)}<b>${t}</b><span>${s}</span></a>`).join('')}${extra}</div>
+  ${!ENV.inClaude && !ENV.installed ? `<div class="report"><h2>Installer sur l’écran d’accueil</h2><ol style="margin:0;padding-left:20px"><li>Android (Chrome) : menu ⋮, puis « Installer l’application ».</li><li>iPhone (Safari) : bouton Partager, puis « Sur l’écran d’accueil ».</li></ol></div>` : ''}</section>`;
+}
+function vSecurite(){
+  const I = S.integrity, d = D(); let bioTxt, bioBtns = '';
+  if (!BIO.supported || BIO.platform === false) bioTxt = 'Cet appareil ou ce navigateur ne propose pas de capteur biométrique compatible. Le code PIN protège le registre.';
+  else if (BIO.blocked) bioTxt = bioMsg('bloque');
+  else if (DEV.credIds.length) bioTxt = 'Empreinte enregistrée sur cet appareil : déverrouillage et signature des écritures actifs.';
+  else bioTxt = 'Aucune empreinte enregistrée sur cet appareil.';
+  if (BIO.supported && BIO.platform !== false && !S.demo){
+    bioBtns = DEV.credIds.length ? `<button class="btn seal" type="button" data-act="bio-test">${ic('fp')}Tester mon empreinte</button><button class="btn danger" type="button" data-act="bio-remove">Retirer de cet appareil</button>` : `<button class="btn seal" type="button" data-act="bio-enroll">${ic('fp')}Enregistrer mon empreinte</button>`;
+  }
+  const broken = I && !I.ok ? `<ul style="margin:0;padding-left:20px">${I.broken.slice(0, 12).map(b => `<li>Écriture n° ${b.n} : ${esc(b.why)}</li>`).join('')}</ul>` : '';
+  return `<section class="blk"><div class="blk-h"><h1>Sécurité et intégrité</h1><button class="link" type="button" data-go="plus">Retour</button></div>
+  <div class="report"><h2>Empreinte digitale</h2><p>${esc(bioTxt)}</p><div class="btns">${bioBtns}</div>
+  <label class="check"><input type="checkbox" id="signBio" data-dev="signBio" ${DEV.signBio ? 'checked' : ''} ${DEV.credIds.length ? '' : 'disabled'}>Signer chaque écriture par empreinte</label>
+  <p class="hint">La signature lie votre empreinte à l’empreinte numérique de l’écriture : elle est vérifiable cryptographiquement à tout moment.</p></div>
+  <div class="report"><h2>Code PIN de secours</h2><p>${DEV.pin ? `Code à ${DEV.pinLen} chiffres actif sur cet appareil.` : 'Aucun code défini.'}</p>
+  <div class="field"><label for="autoLock">Verrouillage automatique après inactivité</label><select id="autoLock" class="in" data-dev="autoLock">${[1, 5, 15, 30].map(m => `<option value="${m}" ${DEV.autoLock === m ? 'selected' : ''}>${m} minute${m > 1 ? 's' : ''}</option>`).join('')}</select></div>
+  <div class="btns">${DEV.pin ? `<button class="btn" type="button" data-act="pin-change">Changer le code</button><button class="btn primary" type="button" data-act="lock">${ic('lock')}Verrouiller maintenant</button>` : ''}</div></div>
+  <div class="report"><h2>Intégrité du registre</h2>
+  <p>${!d.ops.length ? 'Aucune écriture à vérifier.' : !I ? 'Vérification en cours…' : I.ok ? `<b class="pos">Chaîne intègre.</b> ${I.total} écriture(s) scellée(s), ${I.signed} signée(s) par empreinte dont ${I.verified} vérifiée(s) cryptographiquement.` : `<b class="neg">Rupture détectée.</b> ${I.broken.length} anomalie(s) :`}</p>${broken}
+  <div class="btns"><button class="btn" type="button" data-act="verify">${ic('shield')}Vérifier maintenant</button></div>
+  <p class="hint">Chaque écriture contient l’empreinte SHA-256 de son contenu et de l’écriture précédente. Modifier, supprimer ou insérer une ligne casse la chaîne et apparaît ici. Les corrections se font par contre-passation, conformément au principe d’intangibilité des écritures.</p></div>
+  <div class="report"><h2>Ce qui est protégé, et comment</h2><ul style="margin:0;padding-left:20px">
+  <li>Le verrou (empreinte ou code PIN) protège l’application sur cet appareil.</li>
+  <li>${Store.kind === 'cloud' ? 'Les données sont enregistrées dans votre espace privé de compte Claude : seul votre compte peut les lire.' : 'Les données restent sur cet appareil : faites une sauvegarde régulière (Paramètres).'}</li>
+  <li>Le code PIN est conservé sous forme dérivée (PBKDF2, 150 000 itérations), jamais en clair.</li>
+  <li>L’empreinte digitale ne quitte jamais votre téléphone : seule une signature est conservée.</li></ul></div></section>`;
+}
+function vParametres(){
+  const d = D(), st = d.settings, y = new Date().getFullYear();
+  const yrs = []; for (let k = y - 3; k <= y + 1; k++) yrs.push(k); if (!yrs.includes(+st.exercice)) yrs.unshift(+st.exercice);
+  const aiBlock = ENV.inClaude && AI.kind === 'claude' ? `<p>L’assistant utilise votre compte Claude : aucune clé n’est nécessaire.</p>` : `
+    <p>${AI.kind === 'api' ? 'Clé API enregistrée sur cet appareil.' : 'Ajoutez une clé API Claude pour activer l’assistant dans l’application installée.'}</p>
+    <div class="field"><label for="apiKey">Clé API Claude</label><input id="apiKey" class="in" type="password" autocomplete="off" placeholder="${AICFG.key ? '•••• enregistrée' : 'sk-ant-…'}"></div>
+    <div class="field"><label for="apiModel">Modèle</label><select id="apiModel" class="in">${MODELS.map(([v, l]) => `<option value="${v}" ${AICFG.model === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <div class="btns"><button class="btn primary" type="button" data-act="ai-save">Enregistrer</button>${AICFG.key ? '<button class="btn danger" type="button" data-act="ai-clear">Effacer la clé</button>' : ''}</div>
+    <div class="field"><span class="flabel">Créer une clé API :</span><code class="url">https://platform.claude.com/settings/keys</code><button class="btn ghost" type="button" data-copy="https://platform.claude.com/settings/keys">Copier l’adresse</button></div>
+    <p class="hint">La clé reste sur cet appareil et n’est envoyée qu’à https://api.anthropic.com. Les appels sont facturés sur votre compte API.</p>`;
+  return `<section class="blk"><div class="blk-h"><h1>Paramètres</h1><button class="link" type="button" data-go="plus">Retour</button></div>
+  <div class="report"><h2>Structure</h2>
+    <div class="field"><label for="p_structure">Nom de la structure</label><input id="p_structure" class="in" data-set="structure" value="${esc(st.structure)}" placeholder="Ex. : GeoTerraChain QFS"></div>
+    <div class="grid2 stack"><div class="field"><label for="p_resp">Responsable financier</label><input id="p_resp" class="in" data-set="responsable" value="${esc(st.responsable)}"></div>
+    <div class="field"><label for="p_ex">Exercice comptable</label><select id="p_ex" class="in" data-set="exercice">${yrs.map(k => `<option ${+st.exercice === k ? 'selected' : ''}>${k}</option>`).join('')}</select></div></div></div>
+  <div class="report"><h2>Soldes d’ouverture (1er janvier, F CFA)</h2><div class="grid2">${ACCS.map(a => `<div class="field"><label for="p_s_${a.k}">${a.n}</label><input id="p_s_${a.k}" class="in num" inputmode="numeric" data-set="soldes.${a.k}" value="${fmt(st.soldes[a.k])}"></div>`).join('')}</div></div>
+  <div class="report"><h2>Intelligence artificielle</h2><p class="muted small">Actuellement : ${esc(AI.label())}.</p>${aiBlock}</div>
+  <div class="report"><h2>Données et sauvegardes</h2>
+    <p>${S.demo ? 'Démonstration : rien n’est enregistré.' : Store.kind === 'cloud' ? 'Vos données sont enregistrées dans votre espace privé du compte Claude et suivent ce compte sur tous vos appareils.' : 'Vos données sont enregistrées uniquement sur cet appareil. Exportez une sauvegarde chaque semaine.'}</p>
+    <div class="btns"><button class="btn" type="button" data-act="xlsx">${ic('down')}Exporter en Excel</button><button class="btn" type="button" data-act="json">${ic('down')}Sauvegarde complète (.json)</button></div>
+    <div class="field"><label for="restore">Restaurer une sauvegarde (.json) dans un registre vide</label><input id="restore" class="in" type="file" accept="application/json,.json" ${D().ops.length || S.demo ? 'disabled' : ''}></div>
+    <p class="hint">La sauvegarde .json permet aussi de passer de la version Claude à l’application installée, et inversement.</p></div></section>`;
+}
+
+/* ================= Feuilles modales ================= */
+function openSheet(html, label){
+  closeSheet(); const w = document.createElement('div'); w.className = 'scrim';
+  w.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(label || '')}"><div class="grab"></div>${html}</div>`;
+  w.addEventListener('click', ev => { if (ev.target === w) closeSheet(); });
+  $('#sheets').append(w); S.sheet = w; return w.querySelector('.sheet');
+}
+function closeSheet(){ if (S.sheet){ S.sheet.remove(); S.sheet = null; if (S.deferRender) render(); } }
+const sheetHead = (t, sub = '') => `<div class="sheet-h"><div><h2>${t}</h2>${sub ? `<p class="small muted">${sub}</p>` : ''}</div><button class="iconbtn" type="button" data-close aria-label="Fermer">${ic('x')}</button></div>`;
+
+function catOptions(sens, sel){
+  const list = CATS.filter(c => c.s === sens);
+  const groups = ['Exploitation','Investissement','Financement','Interne'];
+  return groups.map(g => { const l = list.filter(c => c.f === g); return l.length ? `<optgroup label="${g}">${l.map(c => `<option value="${c.k}" ${sel === c.k ? 'selected' : ''}>${c.c} · ${c.n}</option>`).join('')}</optgroup>` : ''; }).join('');
+}
+function openOpSheet(pre = {}){
+  const d = D();
+  const F = Object.assign({sens:'S', cat:'', montant:'', date:todayISO(), libelle:'', mode:'especes', compte:'caisse', vers:'banque', tiers:'', fin:'', piece:nextPiece(), justif:true, note:''}, pre);
+  if (F.cat && CATS_BY[F.cat]) F.sens = CATS_BY[F.cat].s;
+  if (!F.cat) F.cat = F.sens === 'E' ? 'services' : F.sens === 'I' ? 'virement' : 'autres_ch';
+  const signLabel = bioSignOn() ? `${ic('fp')}Signer par empreinte et enregistrer` : `${ic('shield')}Sceller et enregistrer`;
+  const el = openSheet(`${sheetHead('Nouvelle opération', 'Écriture scellée, numérotée, non modifiable')}
+  <div class="smart"><div class="smart-h">${ic('spark')}Saisie intelligente · ${esc(AI.label())}</div>
+    <textarea id="qa" class="in" rows="2" placeholder="Ex. : Payé 25 000 F d’abonnement Internet par Orange Money hier"></textarea>
+    <div class="btns"><button class="btn primary" type="button" data-act="analyse">${ic('spark')}Analyser</button><label class="btn" for="scan" ${AI.images ? '' : 'hidden'}>${ic('camera')}Lire un reçu</label><input id="scan" type="file" accept="image/*" capture="environment" hidden></div>
+    <p class="status" id="qaStatus"></p></div>
+  <div class="seg" role="group" aria-label="Sens">${[['S','Sortie'],['E','Entrée'],['I','Virement interne']].map(([k, l]) => `<button type="button" data-sens="${k}" aria-pressed="${F.sens === k}">${l}</button>`).join('')}</div>
+  <div class="grid2"><div class="field"><label for="f_montant">Montant (F CFA)</label><input id="f_montant" class="in num" inputmode="numeric" value="${F.montant ? fmt(F.montant) : ''}" placeholder="0"></div>
+  <div class="field"><label for="f_date">Date</label><input id="f_date" class="in" type="date" value="${esc(F.date)}"></div></div>
+  <div class="field"><label for="f_lib">Libellé</label><input id="f_lib" class="in" value="${esc(F.libelle)}" placeholder="Objet de l’opération"></div>
+  <div class="field" id="w_cat"><label for="f_cat">Catégorie (plan SYSCOHADA)</label><select id="f_cat" class="in">${catOptions(F.sens, F.cat)}</select><span class="hint" id="catHint"></span></div>
+  <div class="grid2 stack"><div class="field"><label for="f_mode">Mode de paiement</label><select id="f_mode" class="in">${MODES.map(m => `<option value="${m.k}" ${F.mode === m.k ? 'selected' : ''}>${m.n}</option>`).join('')}</select></div>
+  <div class="field"><label for="f_compte" id="l_compte">Compte de trésorerie</label><select id="f_compte" class="in">${ACCS.map(a => `<option value="${a.k}" ${F.compte === a.k ? 'selected' : ''}>${a.n}</option>`).join('')}</select></div></div>
+  <div class="field" id="w_vers" hidden><label for="f_vers">Vers le compte</label><select id="f_vers" class="in">${ACCS.map(a => `<option value="${a.k}" ${F.vers === a.k ? 'selected' : ''}>${a.n}</option>`).join('')}</select></div>
+  <div class="grid2 stack"><div class="field" id="w_tiers"><label for="f_tiers">Tiers (client, fournisseur, bailleur)</label><input id="f_tiers" class="in" value="${esc(F.tiers)}"></div>
+  <div class="field" id="w_fin"><label for="f_fin">Financement lié</label><select id="f_fin" class="in"><option value="">Aucun</option>${d.fins.map(f => `<option value="${esc(f.code)}" ${F.fin === f.code ? 'selected' : ''}>${esc(f.code)} · ${esc(f.bailleur || '')}</option>`).join('')}</select></div></div>
+  <div class="grid2 stack"><div class="field"><label for="f_piece">N° de pièce</label><input id="f_piece" class="in mono" value="${esc(F.piece)}"></div>
+  <div class="field"><span class="flabel">Justificatif</span><label class="check" style="min-height:44px"><input type="checkbox" id="f_justif" ${F.justif ? 'checked' : ''}>Pièce justificative disponible</label></div></div>
+  <div class="field"><label for="f_note">Note</label><input id="f_note" class="in" value="${esc(F.note)}"></div>
+  <p class="err" id="opErr"></p>
+  <button class="btn ${bioSignOn() ? 'seal' : 'primary'} wide" type="button" data-act="submitop" id="submitOp">${signLabel}</button>`, 'Nouvelle opération');
+  el.dataset.sens = F.sens;
+  syncOpForm(el);
+  el.addEventListener('change', ev => {
+    const id = ev.target.id;
+    if (id === 'f_mode'){ $('#f_compte', el).value = MODES_BY[ev.target.value].acc; }
+    if (id === 'scan' && ev.target.files?.[0]) scanReceipt(el, ev.target.files[0]);
+    syncOpForm(el);
+  });
+  el.addEventListener('blur', ev => { if (ev.target.id === 'f_montant'){ const v = num(ev.target.value); ev.target.value = v ? fmt(v) : ''; } }, true);
+}
+function syncOpForm(el){
+  const s = el.dataset.sens; const cat = $('#f_cat', el);
+  if (cat.dataset.for !== s){ const keep = cat.value; cat.innerHTML = catOptions(s, keep); cat.dataset.for = s; if (!CATS_BY[cat.value] || CATS_BY[cat.value].s !== s) cat.value = CATS.find(c => c.s === s).k; }
+  $$('[data-sens]', el).forEach(b => b.setAttribute('aria-pressed', b.dataset.sens === s));
+  const c = catOf(cat.value);
+  $('#catHint', el).textContent = `Compte ${c.c} · ${c.i} · flux ${c.f.toLowerCase()}`;
+  $('#w_vers', el).hidden = s !== 'I'; $('#w_cat', el).hidden = s === 'I';
+  $('#w_fin', el).hidden = s === 'I'; $('#w_tiers', el).hidden = s === 'I';
+  $('#l_compte', el).textContent = s === 'I' ? 'Depuis le compte' : 'Compte de trésorerie';
+}
+function fillOpForm(el, x){
+  el.dataset.sens = x.sens; const cat = $('#f_cat', el); cat.innerHTML = catOptions(x.sens, x.cat); cat.dataset.for = x.sens; cat.value = x.cat;
+  if (x.montant) $('#f_montant', el).value = fmt(x.montant);
+  $('#f_date', el).value = x.date; if (x.libelle) $('#f_lib', el).value = x.libelle;
+  $('#f_mode', el).value = x.mode; $('#f_compte', el).value = x.compte;
+  if (x.tiers) $('#f_tiers', el).value = x.tiers; $('#f_fin', el).value = x.fin || '';
+  if (x.piece) $('#f_piece', el).value = x.piece;
+  syncOpForm(el);
+}
+async function analyseText(el){
+  const text = $('#qa', el).value.trim(); const st = $('#qaStatus', el);
+  if (!text){ st.textContent = 'Écrivez d’abord une phrase décrivant l’opération.'; return; }
+  const loc = localParse(text); fillOpForm(el, normalizeDraft({categorie:loc.cat, mode:loc.mode, montant:loc.montant, date:loc.date, libelle:loc.libelle, financement:loc.fin, piece:loc.piece}, text));
+  if (!AI.kind){ st.textContent = 'Analyse locale effectuée : vérifiez les champs avant de signer.'; return; }
+  st.textContent = 'Analyse locale effectuée. Claude affine la saisie…';
+  try {
+    const x = await AI.json(extractPrompt(text, false), {tier:'quick', max:600});
+    const dr = normalizeDraft(x, text); fillOpForm(el, dr);
+    st.textContent = 'Saisie préparée par Claude' + (dr.remarque ? ' · ' + dr.remarque : '') + '. Vérifiez puis signez.';
+  } catch (e) { AI.fail(e); st.textContent = 'Analyse locale conservée. ' + aiErr(e); }
+}
+async function scanReceipt(el, file){
+  const st = $('#qaStatus', el);
+  if (!AI.images){ st.textContent = 'La lecture des reçus nécessite l’assistant Claude.'; return; }
+  st.textContent = 'Lecture du reçu par Claude…';
+  try {
+    const img = AI.kind === 'claude' ? file : await shrinkImage(file);
+    const x = await AI.json(extractPrompt('', true), {images:[img], tier:'default', max:700});
+    const dr = normalizeDraft(x, ''); fillOpForm(el, dr); $('#f_justif', el).checked = true;
+    st.textContent = 'Reçu lu' + (dr.remarque ? ' · ' + dr.remarque : '') + '. Vérifiez puis signez.';
+  } catch (e) { AI.fail(e); st.textContent = aiErr(e); }
+}
+async function submitOp(el){
+  const err = $('#opErr', el), btn = $('#submitOp', el); err.textContent = '';
+  const s = el.dataset.sens, montant = Math.round(num($('#f_montant', el).value)), date = $('#f_date', el).value;
+  const cat = s === 'I' ? 'virement' : $('#f_cat', el).value; const c = catOf(cat);
+  const base = {date, piece:$('#f_piece', el).value.trim(), libelle:$('#f_lib', el).value.trim(), cat, montant, mode:$('#f_mode', el).value, tiers:$('#f_tiers', el).value.trim(), fin:s === 'I' ? '' : $('#f_fin', el).value, justif:$('#f_justif', el).checked, note:$('#f_note', el).value.trim()};
+  if (!(montant > 0)) { err.textContent = 'Indiquez un montant supérieur à zéro.'; return; }
+  if (!isoValid(date)) { err.textContent = 'Indiquez une date valide.'; return; }
+  let drafts;
+  if (s === 'I'){
+    const from = $('#f_compte', el).value, to = $('#f_vers', el).value;
+    if (from === to){ err.textContent = 'Choisissez deux comptes différents pour un virement interne.'; return; }
+    const lib = base.libelle || `Virement ${accN(from)} vers ${accN(to)}`;
+    drafts = [{...base, libelle:lib, sens:'S', compte:from}, {...base, libelle:lib, sens:'E', compte:to}];
+  } else {
+    if (!base.libelle) base.libelle = c.n;
+    drafts = [{...base, sens:c.s, compte:$('#f_compte', el).value}];
+  }
+  btn.disabled = true; btn.textContent = bioSignOn() ? 'Posez votre doigt sur le capteur…' : 'Scellement…';
+  try { const r = await recordOps(drafts); closeSheet(); toast(recordedMsg(r)); }
+  catch (e) { err.textContent = e.message || 'Enregistrement impossible.'; btn.disabled = false; btn.innerHTML = bioSignOn() ? `${ic('fp')}Signer par empreinte et enregistrer` : `${ic('shield')}Sceller et enregistrer`; }
+}
+function openOpDetail(id){
+  const d = D(), o = d.ops.find(x => x.id === id); if (!o) return;
+  const c = catOf(o.cat), C = compute(), revBy = d.ops.find(x => x.rev === o.id), revOf = o.rev ? d.ops.find(x => x.id === o.rev) : null;
+  const batch = o.b ? d.ops.filter(x => x.b === o.b) : [o]; const sigOp = batch.find(x => x.sig);
+  const rows = [['N° d’ordre', String(o.n)], ['Date', dFR(o.date)], ['Pièce', o.piece || '—'], ['Catégorie', `${c.c} · ${c.n}`], ['Intitulé SYSCOHADA', c.i], ['Flux', c.f], ['Compte de trésorerie', accN(o.compte)], ['Mode de paiement', modeN(o.mode) || '—'], ['Tiers', o.tiers || '—'], ['Financement', o.fin || '—'], ['Pièce justificative', o.justif ? 'Disponible' : 'Manquante'], ['Note', o.note || '—'], ['Enregistrée le', new Date(o.createdAt).toLocaleString('fr-FR')]];
+  if (revOf) rows.push(['Contre-passation de', 'écriture n° ' + revOf.n]);
+  if (revBy) rows.push(['Contre-passée par', 'écriture n° ' + revBy.n]);
+  const canRev = !o.rev && !revBy && !S.demo || (S.demo && !o.rev && !revBy);
+  const el = openSheet(`${sheetHead('Écriture n° ' + o.n, esc(o.libelle || c.n))}
+    <span class="big-amt ${o.sens === 'E' ? 'pos' : 'neg'}">${o.sens === 'E' ? '+' : '−'}${fmt(o.montant)} F CFA</span>
+    <dl class="kv">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd class="txt">${esc(v)}</dd></div>`).join('')}</dl>
+    <div class="sealbox"><div class="t">${ic(sigOp ? 'fp' : 'shield')}<span id="sigStat">${sigOp ? 'Signature par empreinte : vérification…' : 'Scellée sans signature biométrique'}</span></div>
+      <span class="flabel">Empreinte numérique SHA-256</span><span class="hash">${esc(o.hash)}</span>
+      <span class="flabel">Écriture précédente</span><span class="hash">${esc(o.prev)}</span>
+      <div class="btns"><button class="btn ghost" type="button" data-copy="${esc(o.hash)}">Copier l’empreinte</button></div></div>
+    ${canRev ? `<div id="revZone"><button class="btn danger wide" type="button" data-act="rev-ask">Contre-passer cette écriture</button></div>` : ''}`, 'Détail de l’écriture');
+  el.dataset.op = o.id;
+  if (sigOp){ const cred = d.creds.find(x => x.id === sigOp.sig.credId); verifySig(sigOp, cred).then(r => { const s = $('#sigStat', el); if (s) s.textContent = r === true ? `Signée par empreinte · signature vérifiée (${cred?.label || 'appareil'})` : r === false ? 'Signature invalide : écriture suspecte' : 'Signée par empreinte (clé publique non disponible pour vérifier)'; }); }
+}
+async function doReverse(el){
+  const d = D(), o = d.ops.find(x => x.id === el.dataset.op); if (!o) return;
+  const batch = o.b ? d.ops.filter(x => x.b === o.b) : [o];
+  const drafts = batch.map(x => ({date:todayISO(), piece:x.piece, libelle:`Contre-passation n° ${x.n} — ${x.libelle}`, cat:x.cat, sens:x.sens === 'E' ? 'S' : 'E', montant:x.montant, compte:x.compte, mode:x.mode, tiers:x.tiers, fin:x.fin, justif:true, rev:x.id, note:'Correction par contre-passation'}));
+  const z = $('#revZone', el); z.innerHTML = '<p class="status">Scellement de la contre-passation…</p>';
+  try { const r = await recordOps(drafts); closeSheet(); toast(recordedMsg(r, 'Contre-passation')); }
+  catch (e) { z.innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+}
+function openFinSheet(code){
+  const d = D(), f = code ? d.fins.find(x => x.code === code) : null;
+  const F = Object.assign({bailleur:'', type:FIN_TYPES[0], objet:'', date:todayISO(), montant:0, remb:false, taux:0, duree:0, debut:'', statut:'Accordé', note:''}, f || {});
+  const linked = f ? d.ops.filter(o => o.fin === f.code).length : 0;
+  const el = openSheet(`${sheetHead(f ? 'Modifier ' + esc(f.code) : 'Nouveau financement', f ? '' : 'Code attribué automatiquement')}
+    <div class="field"><label for="g_bail">Bailleur ou source</label><input id="g_bail" class="in" value="${esc(F.bailleur)}" placeholder="Ex. : Banque, SFD, programme, associé"></div>
+    <div class="grid2 stack"><div class="field"><label for="g_type">Type</label><select id="g_type" class="in">${FIN_TYPES.map(t => `<option ${F.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <div class="field"><label for="g_stat">Statut</label><select id="g_stat" class="in">${FIN_STATUTS.map(t => `<option ${F.statut === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="g_obj">Objet ou affectation prévue</label><input id="g_obj" class="in" value="${esc(F.objet)}"></div>
+    <div class="grid2"><div class="field"><label for="g_mt">Montant accordé (F CFA)</label><input id="g_mt" class="in num" inputmode="numeric" value="${F.montant ? fmt(F.montant) : ''}"></div>
+    <div class="field"><label for="g_date">Date d’accord</label><input id="g_date" class="in" type="date" value="${esc(F.date)}"></div></div>
+    <label class="check"><input type="checkbox" id="g_remb" ${F.remb ? 'checked' : ''}>Remboursable (prêt, avance)</label>
+    <div class="grid2" id="w_loan" ${F.remb ? '' : 'hidden'}><div class="field"><label for="g_taux">Taux annuel (%)</label><input id="g_taux" class="in num" inputmode="decimal" value="${F.taux || ''}"></div>
+    <div class="field"><label for="g_dur">Durée (mois)</label><input id="g_dur" class="in num" inputmode="numeric" value="${F.duree || ''}"></div>
+    <div class="field"><label for="g_deb">1re échéance</label><input id="g_deb" class="in" type="date" value="${esc(F.debut)}"></div></div>
+    <div class="field"><label for="g_note">Conditions, garanties, observations</label><input id="g_note" class="in" value="${esc(F.note)}"></div>
+    <p class="err" id="finErr"></p>
+    <button class="btn primary wide" type="button" data-act="savefin">Enregistrer le financement</button>
+    ${f ? (linked ? `<p class="hint">${linked} écriture(s) liée(s) : ce financement ne peut pas être supprimé.</p>` : `<div id="delZone"><button class="btn danger wide" type="button" data-act="delfin-ask">Supprimer ce financement</button></div>`) : ''}`, 'Financement');
+  el.dataset.code = code || '';
+  el.addEventListener('change', ev => { if (ev.target.id === 'g_remb') $('#w_loan', el).hidden = !ev.target.checked; });
+}
+function saveFin(el){
+  const d = D(), code = el.dataset.code, err = $('#finErr', el);
+  const v = {bailleur:$('#g_bail', el).value.trim(), type:$('#g_type', el).value, statut:$('#g_stat', el).value, objet:$('#g_obj', el).value.trim(), montant:Math.round(num($('#g_mt', el).value)), date:$('#g_date', el).value, remb:$('#g_remb', el).checked, taux:num($('#g_taux', el).value), duree:Math.round(num($('#g_dur', el).value)), debut:$('#g_deb', el).value, note:$('#g_note', el).value.trim()};
+  if (!v.bailleur){ err.textContent = 'Indiquez le bailleur ou la source.'; return; }
+  if (!(v.montant > 0)){ err.textContent = 'Indiquez le montant accordé.'; return; }
+  if (v.remb && !(v.duree > 0)){ err.textContent = 'Indiquez la durée du prêt en mois.'; return; }
+  if (code){ const f = d.fins.find(x => x.code === code); Object.assign(f, v); }
+  else { let mx = 0; d.fins.forEach(f => { const m = String(f.code).match(/(\d+)$/); if (m) mx = Math.max(mx, +m[1]); }); d.fins.push({code:'FIN-' + pad(mx + 1, 3), ...v}); }
+  Store.saveMeta(); closeSheet(); toast(code ? 'Financement mis à jour.' : 'Financement enregistré : ' + d.fins[d.fins.length - 1].code);
+}
+function openSched(code){
+  const d = D(), f = d.fins.find(x => x.code === code), C = compute(), F = C.fin[code], L = F?.loan; if (!L) return;
+  let cumPaid = F.capRemb;
+  const rows = L.rows.map(r => { const paid = cumPaid + 1 >= r.cum; return `<tr class="${paid ? 'paid' : ''}"><td>${r.k}${paid ? ' ✓' : ''}</td><td>${r.date ? dFR(r.date) : '—'}</td><td class="num">${fmt(r.cap)}</td><td class="num">${fmt(r.it)}</td><td class="num">${fmt(r.pr)}</td><td class="num">${fmt(r.pmt)}</td><td class="num">${fmt(r.end)}</td></tr>`; }).join('');
+  openSheet(`${sheetHead('Échéancier ' + esc(code), esc(f.bailleur || ''))}
+    <dl class="kv">${kv('Montant emprunté', num(f.montant))}${kv('Taux annuel', num(f.taux).toLocaleString('fr-FR') + ' %', '', true)}${kv('Durée', num(f.duree) + ' mois', '', true)}${kv('Mensualité constante', L.pmt)}${kv('Coût total des intérêts', L.cout)}${kv('Capital remboursé', F.capRemb)}${kv('Capital restant dû', F.restantDu, 'tot')}</dl>
+    <div class="scroll"><table class="tbl"><thead><tr><th>N°</th><th>Échéance</th><th>Capital début</th><th>Intérêts</th><th>Capital</th><th>Mensualité</th><th>Capital fin</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="hint">✓ : échéance couverte par le capital déjà remboursé (catégorie 162 liée à ${esc(code)}). Calcul à mensualités constantes.</p>`, 'Échéancier');
+}
+function openPinChange(){
+  const el = openSheet(`${sheetHead('Changer le code PIN')}
+    <div class="field"><label for="pc_old">Code actuel</label><input id="pc_old" class="in mono" type="password" inputmode="numeric" autocomplete="off"></div>
+    <div class="field"><label for="pc_new">Nouveau code (4 à 6 chiffres)</label><input id="pc_new" class="in mono" type="password" inputmode="numeric" autocomplete="off"></div>
+    <div class="field"><label for="pc_new2">Confirmez le nouveau code</label><input id="pc_new2" class="in mono" type="password" inputmode="numeric" autocomplete="off"></div>
+    <p class="err" id="pcErr"></p><button class="btn primary wide" type="button" data-act="pin-save">Enregistrer le nouveau code</button>`, 'Code PIN');
+  return el;
+}
+async function savePinChange(el){
+  const e = $('#pcErr', el), o = $('#pc_old', el).value, n = $('#pc_new', el).value, n2 = $('#pc_new2', el).value;
+  if (!(await checkPin(o))){ e.textContent = 'Code actuel incorrect.'; return; }
+  if (!/^\d{4,6}$/.test(n)){ e.textContent = 'Le nouveau code doit compter 4 à 6 chiffres.'; return; }
+  if (n !== n2){ e.textContent = 'Les deux nouveaux codes diffèrent.'; return; }
+  await setPin(n); closeSheet(); toast('Code PIN modifié.');
+}
+
+/* ================= Assistant : audit, discussion, propositions ================= */
+let auditCtl = null, chatCtl = null;
+async function runAudit(){
+  const out = $('#auditOut'), btn = $('#auditBtn'); if (!out) return;
+  if (auditCtl){ auditCtl.abort(); return; }
+  const d = D(), C = compute();
+  const recent = [...d.ops].sort((a, b) => b.n - a.n).slice(0, 80).map(o => `${o.n};${o.date};${o.sens};${o.montant};${catOf(o.cat).c} ${catOf(o.cat).n};${accN(o.compte)};${o.fin || ''};${o.justif ? 'pj' : 'sans pj'};${(o.libelle || '').slice(0, 50)}`).join('\n');
+  const prompt = `Tu es auditeur financier pour une structure de la zone UEMOA tenant sa comptabilité selon le SYSCOHADA révisé (montants en F CFA). Voici les données du registre au ${todayISO()}.
+SYNTHÈSE : ${JSON.stringify(summaryData())}
+FINANCEMENTS : ${JSON.stringify(finsData())}
+BUDGET : ${JSON.stringify(budgetData())}
+80 DERNIÈRES ÉCRITURES (n°;date;sens E/S;montant;compte;trésorerie;financement;pièce;libellé) :
+${recent || 'aucune'}
+Rédige un audit en français, 350 mots au maximum, avec ces titres « ## » : Synthèse ; Points d’attention (du plus grave au moins grave) ; Financements et dette ; Conformité et pièces justificatives ; Actions recommandées (5 actions concrètes, numérotées). Utilise uniquement les chiffres fournis, n’en invente aucun, et cite les numéros d’écriture concernés.`;
+  auditCtl = new AbortController(); btn.textContent = 'Arrêter'; out.innerHTML = '<p class="muted">Analyse en cours…</p>';
+  try {
+    const t = await AI.text(prompt, {signal:auditCtl.signal, tier:'default', max:1400, onText:({text}) => { out.innerHTML = mdLite(text); }});
+    S.audit = t; out.innerHTML = mdLite(t);
+  } catch (e) { AI.fail(e); if (e?.code !== 'cancelled') out.innerHTML = `<p class="err">${esc(aiErr(e))}</p>`; else if (e.text) out.innerHTML = mdLite(e.text); }
+  finally { auditCtl = null; const b = $('#auditBtn'); if (b) b.innerHTML = ic('spark') + 'Relancer l’audit'; }
+}
+function chatRules(){
+  const d = D();
+  return `Tu es l’assistant financier autonome du « Registre financier scellé » de ${d.settings.structure || 'la structure'} (exercice ${d.settings.exercice}, date du jour ${todayISO()}). Référentiel SYSCOHADA révisé, zone UEMOA, montants en francs CFA.
+Réponds en français, brièvement et précisément ; quand il y a des actions, donne des étapes numérotées. Lis les chiffres avec les outils et n’invente jamais de montant.
+Pour enregistrer une opération, appelle proposer_operation : elle s’affiche à l’écran et l’utilisatrice la valide par empreinte digitale ou code PIN. Un remboursement de prêt se propose en deux opérations : remb_capital et interets (utilise l’outil echeancier pour la répartition). Un virement entre comptes internes se saisit dans l’application avec « Virement interne ».
+Tu ne peux ni modifier ni supprimer une écriture scellée : pour corriger, conseille une contre-passation depuis le détail de l’écriture.
+Catégories (clé — libellé — compte — sens) : ${CATS.filter(c => c.s !== 'I').map(c => `${c.k} — ${c.n} — ${c.c} — ${c.s}`).join(' ; ')}.
+Modes : ${MODES.map(m => m.k + ' (' + m.n + ')').join(', ')}. Comptes de trésorerie : caisse, banque, mobile, crypto.`;
+}
+function chatTools(){
+  return [
+    {name:'synthese', description:'Renvoie la synthèse financière : trésorerie totale et par compte, encaissements et décaissements de l’exercice, flux par activité, totaux des financements, alertes en cours.', execute:() => summaryData()},
+    {name:'operations', description:'Liste les écritures du journal (60 au plus), filtrables. Renvoie n°, date, pièce, libellé, catégorie, compte SYSCOHADA, sens E ou S, montant, trésorerie, mode, tiers, financement.', inputSchema:{type:'object', properties:{du:{type:'string', description:'date de début AAAA-MM-JJ'}, au:{type:'string', description:'date de fin AAAA-MM-JJ'}, categorie:{type:'string', description:'clé de catégorie'}, sens:{type:'string', enum:['E','S']}, recherche:{type:'string', description:'texte cherché dans libellé, tiers ou pièce'}, financement:{type:'string', description:'code FIN-xxx'}, limite:{type:'number'}}}, execute:i => opsData(i)},
+    {name:'financements', description:'Liste les financements avec accordé, reçu, utilisé, disponible, mensualité, capital remboursé, intérêts payés, capital restant dû, prochaine échéance et retard éventuel.', execute:() => finsData()},
+    {name:'budget', description:'Budget prévu et réalisé par catégorie pour l’exercice en cours.', execute:() => budgetData()},
+    {name:'echeancier', description:'Tableau d’amortissement d’un prêt : pour chaque échéance, date, intérêts, capital, mensualité et capital restant.', inputSchema:{type:'object', properties:{code:{type:'string', description:'code du financement, ex. FIN-002'}}, required:['code']}, execute:i => { const C = compute(), F = C.fin[String(i.code || '').toUpperCase()]; if (!F?.loan) throw new Error('Aucun prêt remboursable avec ce code.'); return F.loan.rows.map(r => ({n:r.k, date:r.date, interets:Math.round(r.it), capital:Math.round(r.pr), mensualite:Math.round(r.pmt), capital_restant:Math.round(r.end)})); }},
+    {name:'proposer_operation', description:'Propose une nouvelle écriture. Elle s’affiche à l’écran et n’est enregistrée qu’après validation par l’utilisatrice (empreinte digitale ou code PIN). À utiliser quand on te demande d’enregistrer ou d’ajouter une opération.', inputSchema:{type:'object', properties:{date:{type:'string', description:'AAAA-MM-JJ'}, libelle:{type:'string'}, categorie:{type:'string', enum:CATS.filter(c => c.s !== 'I').map(c => c.k)}, montant:{type:'number', description:'montant en F CFA'}, mode:{type:'string', enum:MODES.map(m => m.k)}, compte:{type:'string', enum:ACCS.map(a => a.k)}, tiers:{type:'string'}, financement:{type:'string'}, piece:{type:'string'}}, required:['libelle','categorie','montant']}, execute:i => {
+      const dr = normalizeDraft({categorie:i.categorie, montant:i.montant, date:i.date, libelle:i.libelle, mode:i.mode, compte:i.compte, tiers:i.tiers, financement:i.financement, piece:i.piece}, '');
+      if (!(dr.montant > 0)) throw new Error('Montant manquant ou nul.');
+      S.proposals.push(dr); const p = $('#props'); if (p) p.innerHTML = propsHTML();
+      return `Proposition affichée (${dr.libelle}, ${dr.montant} F CFA). Elle attend la validation de l’utilisatrice par empreinte ou code PIN.`; }}
+  ];
+}
+async function sendChat(text){
+  text = String(text || '').trim(); if (!text) return;
+  if (chatCtl){ chatCtl.abort(); return; }
+  const st = $('#aiStatus'), box = $('#chat');
+  S.chat.push({role:'user', content:text});
+  if (S.chat.length > 16) S.chat = S.chat.slice(-16);
+  while (S.chat.length && S.chat[0].role !== 'user') S.chat.shift();
+  const idx = S.chat.length;
+  box.innerHTML = S.chat.map((m, i) => `<div class="msg ${m.role === 'user' ? 'u' : 'a md'}" id="msg${i}">${m.role === 'user' ? esc(m.content) : mdLite(m.content)}</div>`).join('') + `<div class="msg a md" id="msg${idx}"><p class="muted">Réflexion…</p></div>`;
+  const ta = $('#ask'); if (ta){ ta.value = ''; ta.blur(); }
+  chatCtl = new AbortController(); const sb = $('#sendBtn'); if (sb) sb.textContent = 'Arrêter';
+  if (st) st.textContent = '';
+  try {
+    const opts = {system:chatRules(), turns:S.chat.map(m => ({role:m.role, content:m.content})), signal:chatCtl.signal, tier:'quick', cache:false, max:1500, onText:({text}) => { const m = $('#msg' + idx); if (m) m.innerHTML = mdLite(text); }};
+    if (AI.tools) opts.tools = chatTools();
+    else opts.system += `\nDONNÉES ACTUELLES : ${JSON.stringify(summaryData())}`;
+    const t = await AI.text('', opts);
+    S.chat.push({role:'assistant', content:t}); const m = $('#msg' + idx); if (m) m.innerHTML = mdLite(t);
+  } catch (e) {
+    AI.fail(e); const m = $('#msg' + idx);
+    if (e?.text){ S.chat.push({role:'assistant', content:e.text}); if (m) m.innerHTML = mdLite(e.text); } else if (m) m.remove();
+    if (st && e?.code !== 'cancelled') st.textContent = aiErr(e);
+  } finally { chatCtl = null; const b = $('#sendBtn'); if (b) b.textContent = 'Envoyer'; }
+}
+
+/* ================= Export, sauvegarde, application ================= */
+async function saveFile(name, data, mime){
+  if (ENV.inClaude){
+    let dl = null; try { dl = await claude.use('downloads'); } catch {}
+    if (!dl){ toast('Téléchargement indisponible dans cette vue.'); return false; }
+    try { await dl.save({filename:name, data}); toast('Fichier enregistré : ' + name); return true; }
+    catch (e) { toast(e?.code === 'declined' ? 'Téléchargement annulé.' : 'Téléchargement impossible (' + (e?.code || 'erreur') + ').'); return false; }
+  }
+  const blob = data instanceof Blob ? data : new Blob([data], {type:mime || 'application/octet-stream'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); toast('Fichier téléchargé : ' + name); return true;
+}
+const slug = s => norm(s || 'registre').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'registre';
+async function exportXlsx(){
+  toast('Préparation du fichier Excel…');
+  try { await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); } catch { toast('Module Excel inaccessible : vérifiez la connexion Internet.'); return; }
+  const X = window.XLSX, d = D(), C = compute(), wb = X.utils.book_new();
+  const toDate = iso => isoValid(iso) ? new Date(iso + 'T00:00:00') : iso;
+  const add = (name, aoa, widths, moneyCols = [], dateCols = []) => {
+    const ws = X.utils.aoa_to_sheet(aoa, {cellDates:true});
+    ws['!cols'] = widths.map(w => ({wch:w}));
+    const rng = X.utils.decode_range(ws['!ref'] || 'A1');
+    for (let r = rng.s.r; r <= rng.e.r; r++){ moneyCols.forEach(cIdx => { const cell = ws[X.utils.encode_cell({r, c:cIdx})]; if (cell && cell.t === 'n') cell.z = '#,##0'; }); dateCols.forEach(cIdx => { const cell = ws[X.utils.encode_cell({r, c:cIdx})]; if (cell && cell.t === 'd') cell.z = 'dd/mm/yyyy'; }); }
+    X.utils.book_append_sheet(wb, ws, name);
+  };
+  const I = S.integrity;
+  add('Synthèse', [['Registre financier scellé'], [d.settings.structure || ''], ['Exercice', C.y], ['Montants en francs CFA (XOF) — référentiel SYSCOHADA révisé'], ['Exporté le', new Date().toLocaleString('fr-FR')], [],
+    ['Indicateur', 'Montant (F CFA)'], ['Trésorerie totale', C.solde], ['Encaissements de l’exercice', C.enc], ['Décaissements de l’exercice', C.dec], ['Excédent ou déficit', C.enc - C.dec],
+    ['Financements accordés', C.finTot.accorde], ['Financements reçus', C.finTot.recu], ['Financements utilisés', C.finTot.utilise], ['Financements disponibles', C.finTot.dispo], ['Capital restant dû', C.finTot.du], [],
+    ['Flux par activité', 'Encaissements', 'Décaissements', 'Flux net'], ...['Exploitation','Investissement','Financement'].map(k => [k, C.tft[k].e, C.tft[k].s, C.tft[k].e - C.tft[k].s]), [],
+    ['Intégrité', I ? (I.ok ? 'Chaîne intègre' : 'Rupture détectée') : 'Non vérifiée', `${C.nOps} écritures`, `${I?.signed || 0} signées par empreinte`]], [34, 20, 18, 22], [1, 2, 3]);
+  const J = [['N°','Date','Pièce','Libellé','Catégorie','Compte SYSCOHADA','Flux','Entrée (F CFA)','Sortie (F CFA)','Compte de trésorerie','Mode de paiement','Tiers','Financement','Pièce justificative','Contre-passation de','Signée par empreinte','Empreinte SHA-256']];
+  [...d.ops].sort((a, b) => a.n - b.n).forEach(o => { const c = catOf(o.cat); J.push([o.n, toDate(o.date), o.piece, o.libelle, c.n, c.c, c.f, o.sens === 'E' ? o.montant : null, o.sens === 'S' ? o.montant : null, accN(o.compte), modeN(o.mode), o.tiers, o.fin, o.justif ? 'Oui' : 'Non', o.rev ? (d.ops.find(x => x.id === o.rev)?.n || '') : '', isSigned(o, d) ? 'Oui' : 'Non', o.hash]); });
+  add('Journal', J, [6, 11, 11, 38, 30, 10, 14, 15, 15, 20, 18, 22, 11, 10, 10, 10, 66], [7, 8], [1]);
+  const FI = [['Code','Date d’accord','Bailleur','Type','Objet','Accordé','Reçu','Reste à recevoir','Utilisé','Disponible','Remboursable','Taux annuel %','Durée (mois)','1re échéance','Mensualité','Capital remboursé','Intérêts payés','Capital restant dû','Statut','Conditions']];
+  d.fins.forEach(f => { const F = C.fin[f.code]; FI.push([f.code, toDate(f.date), f.bailleur, f.type, f.objet, num(f.montant), F.recu, F.reste, F.utilise, F.dispo, f.remb ? 'Oui' : 'Non', f.remb ? num(f.taux) : null, f.remb ? num(f.duree) : null, f.remb ? toDate(f.debut) : '', F.loan ? Math.round(F.loan.pmt) : null, F.capRemb, F.interets, F.restantDu, f.statut, f.note]); });
+  add('Financements', FI, [9, 12, 28, 22, 30, 14, 14, 14, 14, 14, 11, 10, 10, 12, 13, 14, 13, 14, 16, 30], [5, 6, 7, 8, 9, 14, 15, 16, 17], [1, 13]);
+  const EC = [['Code','N°','Échéance','Capital début','Intérêts','Capital','Mensualité','Capital fin']];
+  d.fins.forEach(f => { const L = C.fin[f.code].loan; if (L) L.rows.forEach(r => EC.push([f.code, r.k, toDate(r.date), Math.round(r.cap), Math.round(r.it), Math.round(r.pr), Math.round(r.pmt), Math.round(r.end)])); });
+  add('Échéanciers', EC, [9, 5, 12, 15, 13, 13, 13, 15], [3, 4, 5, 6, 7], [2]);
+  const BU = [['Catégorie','Compte','Nature','Prévu','Réalisé','Écart','% réalisé']];
+  CATS.filter(c => c.s !== 'I').forEach(c => { const b = num(d.budget[c.k]), r = Math.round(C.cat[c.k] || 0); BU.push([c.n, c.c, c.s === 'E' ? 'Encaissement' : 'Décaissement', b || null, r, r - b, b ? Math.round(r / b * 100) : null]); });
+  add('Budget', BU, [36, 9, 14, 15, 15, 15, 10], [3, 4, 5]);
+  add('Trésorerie', [['Mois','Solde début','Encaissements','Décaissements','Flux net','Solde fin'], ...C.months.map((m, i) => [MOIS[i], m.deb, m.e, m.s, m.e - m.s, m.fin]), [], ['Compte','Code','Solde d’ouverture','Entrées','Sorties','Solde actuel'], ...ACCS.map(a => [a.n, a.c, C.acc[a.k].ouv, C.acc[a.k].e, C.acc[a.k].s, C.acc[a.k].solde])], [26, 15, 17, 15, 15, 15], [1, 2, 3, 4, 5]);
+  add('Plan comptable', [['Clé','Catégorie','Compte SYSCOHADA','Intitulé','Nature','Flux'], ...CATS.map(c => [c.k, c.n, c.c, c.i, c.s === 'E' ? 'Entrée' : c.s === 'S' ? 'Sortie' : 'Interne', c.f])], [14, 36, 10, 50, 10, 16]);
+  const buf = X.write(wb, {bookType:'xlsx', type:'array'});
+  await saveFile(`Registre_${slug(d.settings.structure)}_${C.y}.xlsx`, buf, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+async function exportJson(){
+  const d = D();
+  const data = {format:'registre-financier-scelle', version:1, exportedAt:new Date().toISOString(), settings:d.settings, fins:d.fins, budget:d.budget, creds:d.creds, ops:[...d.ops].sort((a, b) => a.n - b.n)};
+  await saveFile(`Sauvegarde_${slug(d.settings.structure)}_${todayISO()}.json`, JSON.stringify(data, null, 1), 'application/json');
+}
+async function restoreJson(file){
+  if (S.demo || REAL.ops.length){ toast('La restauration se fait uniquement dans un registre vide.'); return; }
+  let data; try { data = JSON.parse(await file.text()); } catch { toast('Fichier illisible.'); return; }
+  if (data?.format !== 'registre-financier-scelle' || !Array.isArray(data.ops)){ toast('Ce fichier n’est pas une sauvegarde du registre.'); return; }
+  const ops = [...data.ops].sort((a, b) => a.n - b.n); let prev = 'GENESE';
+  for (let i = 0; i < ops.length; i++){ const o = ops[i]; if (o.n !== i + 1 || o.prev !== prev || hex(await sha256(canon(o))) !== o.hash){ toast(`Sauvegarde altérée à l’écriture n° ${o.n} : restauration refusée.`, 5000); return; } prev = o.hash; }
+  applyMeta(data); toast('Restauration en cours…', 6000);
+  if (Store.kind === 'local'){ REAL.ops = ops; Store.persistLocal(); }
+  else if (Store.kind === 'cloud'){ Store.saveMeta(); try { for (const o of ops){ const body = JSON.parse(JSON.stringify(o)); const id = body.id || ('op' + rid()); delete body.id; await Store.opsCol().doc(id).set(body); } } catch (e) { toast('Restauration interrompue (' + (e?.code || 'erreur') + ').'); return; } }
+  dataChanged(); toast(`Sauvegarde restaurée : ${ops.length} écriture(s) vérifiée(s).`);
+}
+async function downloadApp(){
+  toast('Préparation du paquet de l’application…');
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    const files = ['index.html','manifest.webmanifest','sw.js','favicon.svg','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','LISEZMOI.txt'];
+    const zip = new window.JSZip(), dir = zip.folder('registre-financier');
+    for (const f of files){ const r = await fetch('pwa/' + f); if (!r.ok) throw new Error(f); dir.file(f, await r.arrayBuffer()); }
+    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE'});
+    await saveFile('registre-financier-pwa.zip', blob, 'application/zip');
+  } catch { toast('Le paquet de l’application n’est pas accessible ici.'); }
+}
+
+/* ================= Démonstration ================= */
+async function buildDemo(){
+  const y = new Date().getFullYear(), D0 = blankData();
+  D0.settings = {structure:'Coopérative Démo (fictive)', responsable:'Trésorière', exercice:y, soldes:{caisse:50000, banque:250000, mobile:30000, crypto:0}};
+  D0.fins = [
+    {code:'FIN-001', date:`${y}-01-05`, bailleur:'Fonds propres du fondateur', type:'Fonds propres', objet:'Démarrage des activités', montant:2000000, remb:false, taux:0, duree:0, debut:'', statut:'Reçu en totalité', note:''},
+    {code:'FIN-002', date:`${y}-01-10`, bailleur:'Microfinance partenaire (SFD)', type:'Prêt microfinance (SFD)', objet:'Matériel et fonds de roulement', montant:5000000, remb:true, taux:12, duree:24, debut:`${y}-02-15`, statut:'En remboursement', note:'Caution personnelle, assurance décès-invalidité'},
+    {code:'FIN-003', date:`${y}-03-01`, bailleur:'Programme de subvention (fictif)', type:'Subvention', objet:'Plateforme numérique', montant:3000000, remb:false, taux:0, duree:0, debut:'', statut:'Partiellement reçu', note:'2e tranche sur rapport d’exécution'}
+  ];
+  D0.budget = {loyer:1800000, telecom:300000, pub:130000, energie:50000, honoraires:600000, services:3000000, logiciels:2000000, materiel:1500000};
+  const L = [
+    ['01-05','Apport initial du fondateur','apport_expl','virement','banque',2000000,'Fondateur','FIN-001',true],
+    ['01-15','Déblocage du prêt microfinance','emprunt','virement','banque',5000000,'Microfinance partenaire','FIN-002',true],
+    ['01-20','Achat de 3 ordinateurs portables','materiel','virement','banque',1350000,'Fournisseur informatique','FIN-002',true],
+    ['02-02','Abonnement Internet février','telecom','om','mobile',25000,'Opérateur télécom','FIN-001',true],
+    ['02-10','Loyer du bureau, février','loyer','virement','banque',150000,'Propriétaire','',true],
+    ['03-10','1re tranche de subvention','subv_inv','virement','banque',1500000,'Programme de subvention','FIN-003',true],
+    ['03-20','Développement de l’application web','logiciels','virement','banque',800000,'Prestataire numérique','FIN-003',false],
+    ['04-05','Délimitation de parcelles','services','wave','mobile',450000,'Client A','',true],
+    ['05-18','Carburant, missions de terrain','energie','especes','caisse',60000,'Station-service','',true],
+    ['06-12','Conseil foncier','services','virement','banque',900000,'Client B','',true],
+    ['07-03','Campagne publicitaire en ligne','pub','carte','banque',120000,'Régie publicitaire','',true],
+    ['08-25','Honoraires du géomètre','honoraires','virement','banque',350000,'Cabinet géomètre','',true],
+    ['09-14','Vente de plants','ventes','especes','caisse',275000,'Clients divers','',true],
+    ['10-08','Frais de tenue de compte','frais_banc','virement','banque',15000,'Banque','',true]
+  ].map(r => ({date:`${y}-${r[0]}`, libelle:r[1], cat:r[2], mode:r[3], compte:r[4], montant:r[5], tiers:r[6], fin:r[7], justif:r[8], sens:CATS_BY[r[2]].s}));
+  const loan = loanInfo(D0.fins[1], null); const today = todayISO();
+  loan.rows.filter(r => r.date <= today && r.date <= `${y}-12-31`).forEach(r => {
+    L.push({date:r.date, libelle:`Échéance ${r.k} du prêt, capital`, cat:'remb_capital', mode:'virement', compte:'banque', montant:Math.round(r.pr), tiers:'Microfinance partenaire', fin:'FIN-002', justif:true, sens:'S', grp:r.k});
+    L.push({date:r.date, libelle:`Échéance ${r.k} du prêt, intérêts`, cat:'interets', mode:'virement', compte:'banque', montant:Math.round(r.it), tiers:'Microfinance partenaire', fin:'FIN-002', justif:true, sens:'S', grp:r.k});
+  });
+  L.push({date:`${y}-01-22`, libelle:'Approvisionnement de la caisse', cat:'virement', mode:'cheque', compte:'banque', montant:200000, sens:'S', justif:true, grp:'v'});
+  L.push({date:`${y}-01-22`, libelle:'Approvisionnement de la caisse', cat:'virement', mode:'cheque', compte:'caisse', montant:200000, sens:'E', justif:true, grp:'v'});
+  L.sort((a, b) => a.date.localeCompare(b.date));
+  let prev = 'GENESE', n = 0; const gb = {};
+  for (const r of L){
+    n++; const b = r.grp !== undefined ? (gb[r.grp] = gb[r.grp] || 'b' + rid()) : '';
+    const op = {id:'op' + rid(), n, prev, createdAt:r.date + 'T10:00:00.000Z', date:r.date, piece:'PJ-' + pad(n, 4), libelle:r.libelle, cat:r.cat, sens:r.sens, montant:r.montant, compte:r.compte, mode:r.mode, tiers:r.tiers || '', fin:r.fin || '', justif:r.justif, pj:'', rev:'', note:'', b};
+    op.hash = hex(await sha256(canon(op))); prev = op.hash; D0.ops.push(op);
+  }
+  return D0;
+}
+async function enterDemo(){ if (!DEMO) DEMO = await buildDemo(); S.demo = true; S.integrity = null; S.chat = []; S.proposals = []; S.audit = ''; if (!S.unlocked) unlock(); dataChanged(); go('accueil'); }
+function exitDemo(){ S.demo = false; S.integrity = null; S.chat = []; S.proposals = []; S.audit = ''; if (!DEV.pin && STORAGE_OK){ S.unlocked = false; S.lockMode = 'onboard'; OB.step = 'intro'; renderLock(); return; } dataChanged(); go('accueil'); }
+
+/* ================= Verrou, empreinte et première utilisation ================= */
+const OB = {step:'intro', len:4, p1:'', buf:''};
+const L = {buf:'', msg:''};
+async function setPin(pin){ const salt = b64e(crypto.getRandomValues(new Uint8Array(16))); DEV.pin = {salt, iter:150000, hash:await pbkdf2(pin, salt, 150000)}; DEV.pinLen = pin.length; DEV.fails = 0; DEV.lockUntil = 0; saveDev(); }
+async function checkPin(pin){ if (!DEV.pin) return false; try { return (await pbkdf2(pin, DEV.pin.salt, DEV.pin.iter)) === DEV.pin.hash; } catch { return false; } }
+const dotsHTML = (n, f) => `<div class="dots" id="dots" aria-label="${f} chiffre(s) saisi(s) sur ${n}">${Array.from({length:n}, (_, i) => `<i class="${i < f ? 'on' : ''}"></i>`).join('')}</div>`;
+const keypadHTML = bio => `<div class="keypad">${[1,2,3,4,5,6,7,8,9].map(k => `<button class="key" type="button" data-key="${k}">${k}</button>`).join('')}${bio ? `<button class="key fn" type="button" data-act="bio-unlock" aria-label="Déverrouiller par empreinte">${ic('fp')}</button>` : '<span></span>'}<button class="key" type="button" data-key="0">0</button><button class="key fn" type="button" data-key="del" aria-label="Effacer">Effacer</button></div>`;
+function updateDots(buf, n){ const el = $('#dots'); if (el) el.outerHTML = dotsHTML(n, buf.length); }
+function renderLock(msg){
+  const el = $('#lock'); el.hidden = false; $('#app').hidden = true; closeSheet();
+  if (S.lockMode === 'onboard') el.innerHTML = obHTML(msg); else el.innerHTML = unlockHTML(msg);
+}
+function unlockHTML(msg){
+  const d = D(), wait = Math.max(0, DEV.lockUntil - Date.now());
+  if (wait > 0){ clearTimeout(L.t); L.t = setTimeout(() => renderLock(), wait + 50); msg = `Trop d’essais. Réessayez dans ${Math.ceil(wait / 1000)} s.`; }
+  const bio = bioUsable();
+  return `<div class="lock-in"><div class="emblem logo">${logoSVG(120, '--paper')}</div>
+    <div><h1>Registre verrouillé</h1><p class="muted">${esc(d.settings.structure || 'Registre financier scellé')}</p></div>
+    ${bio ? `<button class="btn seal wide" type="button" data-act="bio-unlock">${ic('fp')}Déverrouiller par empreinte</button><p class="muted small">ou saisissez votre code PIN</p>` : '<p class="muted small">Saisissez votre code PIN</p>'}
+    ${dotsHTML(DEV.pinLen, L.buf.length)}<p class="err" id="lockErr">${esc(msg || '')}</p>${keypadHTML(bio)}
+    <button class="btn ghost" type="button" data-act="forgot">Code oublié ?</button><div id="forgotZone"></div></div>`;
+}
+function obHTML(msg){
+  const s = OB.step;
+  if (s === 'intro') return `<div class="lock-in"><div class="emblem logo">${logoSVG(120, '--paper')}</div>
+    <div><h1>Registre financier scellé</h1><p class="muted">Comptabilité et financements en F CFA, plan SYSCOHADA révisé.</p></div>
+    <ul class="feat"><li>${ic('fp')}<span><b>Empreinte digitale</b> pour déverrouiller et signer chaque écriture, avec un code PIN de secours.</span></li>
+    <li>${ic('spark')}<span><b>IA autonome</b> : saisie en une phrase, lecture des reçus, surveillance continue et audit.</span></li>
+    <li>${ic('shield')}<span><b>Registre scellé</b> : chaque écriture est numérotée et chaînée par SHA-256 ; toute modification est détectée.</span></li>
+    <li>${ic('coins')}<span><b>Financements et prêts</b> : reçu, utilisé, disponible, échéanciers, budget et trésorerie.</span></li></ul>
+    <button class="btn primary wide" type="button" data-act="ob-start">Sécuriser mon registre</button>
+    <button class="btn ghost wide" type="button" data-act="demo">${ic('play')}Voir la démonstration</button></div>`;
+  if (s === 'pin1' || s === 'pin2') return `<div class="lock-in"><span class="steps">Étape 1 sur 3 · code de secours</span><div class="emblem">${ic('lock')}</div>
+    <div><h1>${s === 'pin1' ? 'Créez votre code PIN' : 'Confirmez le code'}</h1><p class="muted">Il remplace l’empreinte si le capteur est indisponible.</p></div>
+    ${s === 'pin1' ? `<div class="seg" style="width:100%" role="group" aria-label="Longueur du code">${[4, 6].map(n => `<button type="button" data-oblen="${n}" aria-pressed="${OB.len === n}">${n} chiffres</button>`).join('')}</div>` : ''}
+    ${dotsHTML(OB.len, OB.buf.length)}<p class="err">${esc(msg || '')}</p>${keypadHTML(false)}</div>`;
+  if (s === 'bio') return `<div class="lock-in"><span class="steps">Étape 2 sur 3 · empreinte digitale</span><div class="emblem">${ic('fp')}</div>
+    <div><h1>Enregistrez votre empreinte</h1><p class="muted">Elle déverrouille le registre et signe chaque écriture. Elle ne quitte jamais votre téléphone.</p></div>
+    <p class="err" id="obBioMsg">${esc(msg || '')}</p>
+    ${BIO.supported && BIO.platform !== false && !BIO.blocked && !DEV.credIds.length ? `<button class="btn seal wide" type="button" data-act="ob-bio">${ic('fp')}Enregistrer mon empreinte</button>` : ''}
+    ${DEV.credIds.length ? `<p class="pos"><b>Empreinte enregistrée sur cet appareil.</b></p>` : (!BIO.supported || BIO.platform === false) ? `<p class="muted small">${esc(bioMsg('nonsupporte'))}</p>` : ''}
+    <button class="btn ${DEV.credIds.length ? 'primary' : 'ghost'} wide" type="button" data-act="ob-next">${DEV.credIds.length ? 'Continuer' : 'Continuer avec le code PIN'}</button></div>`;
+  if (s === 'wait') return `<div class="lock-in"><div class="emblem">${ic('shield')}</div><h1>Connexion au registre…</h1><p class="muted">Lecture de vos données.</p></div>`;
+  const y = new Date().getFullYear(), st = REAL.settings;
+  return `<div class="lock-in"><span class="steps">Étape 3 sur 3 · votre structure</span>
+    <div><h1>Ouvrez le registre</h1><p class="muted">Ces informations restent modifiables dans Paramètres.</p></div>
+    <div class="form-left">
+      <div class="field"><label for="o_name">Nom de la structure</label><input id="o_name" class="in" value="${esc(st.structure)}" placeholder="Ex. : GeoTerraChain QFS"></div>
+      <div class="grid2"><div class="field"><label for="o_ex">Exercice</label><select id="o_ex" class="in">${[y - 1, y, y + 1].map(k => `<option ${k === y ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
+      <div class="field"><label for="o_resp">Responsable</label><input id="o_resp" class="in" value="${esc(st.responsable)}"></div></div>
+      <span class="flabel">Soldes d’ouverture au 1er janvier (F CFA, facultatif)</span>
+      <div class="grid2">${ACCS.map(a => `<div class="field"><label for="o_s_${a.k}">${a.n}</label><input id="o_s_${a.k}" class="in num" inputmode="numeric" placeholder="0"></div>`).join('')}</div>
+      <p class="err">${esc(msg || '')}</p>
+      <button class="btn primary wide" type="button" data-act="ob-finish">Ouvrir le registre</button></div></div>`;
+}
+async function obPin(k){
+  if (k === 'del') OB.buf = OB.buf.slice(0, -1); else if (OB.buf.length < OB.len) OB.buf += k;
+  updateDots(OB.buf, OB.len);
+  if (OB.buf.length < OB.len) return;
+  if (OB.step === 'pin1'){ OB.p1 = OB.buf; OB.buf = ''; OB.step = 'pin2'; renderLock(); return; }
+  if (OB.buf === OB.p1){ await setPin(OB.buf); OB.buf = ''; OB.p1 = ''; OB.step = 'bio'; renderLock(); }
+  else { OB.buf = ''; OB.p1 = ''; OB.step = 'pin1'; renderLock('Les deux codes ne correspondent pas. Recommencez.'); }
+}
+async function lockPin(k){
+  if (Date.now() < DEV.lockUntil) return;
+  if (k === 'del') L.buf = L.buf.slice(0, -1); else if (L.buf.length < DEV.pinLen) L.buf += k;
+  updateDots(L.buf, DEV.pinLen);
+  if (L.buf.length < DEV.pinLen) return;
+  const ok = await checkPin(L.buf); L.buf = '';
+  if (ok){ DEV.fails = 0; DEV.lockUntil = 0; saveDev(); unlock(); return; }
+  DEV.fails++; if (DEV.fails >= 5) DEV.lockUntil = Date.now() + Math.min(900000, 30000 * Math.pow(2, DEV.fails - 5)); saveDev();
+  renderLock(DEV.fails >= 5 ? '' : `Code incorrect. ${5 - DEV.fails} essai(s) avant blocage temporaire.`);
+}
+async function enrollBio(){
+  try {
+    const cred = await bioEnroll();
+    DEV.credIds = [cred.id]; DEV.credPub = cred; DEV.signBio = true; saveDev();
+    REAL.creds = REAL.creds.filter(c => c.id !== cred.id).concat([cred]);
+    Store.ready.then(syncDeviceCred);
+    return {ok:true};
+  } catch (e) { const k = bioErr(e); if (k === 'bloque') BIO.blocked = true; return {ok:false, msg:bioMsg(k)}; }
+}
+function syncDeviceCred(){
+  const c = DEV.credPub; if (!c || !DEV.credIds.includes(c.id)) return;
+  if (!REAL.creds.some(x => x.id === c.id)){ REAL.creds = REAL.creds.concat([c]); Store.saveMeta(); }
+}
+async function obFinish(){
+  const name = $('#o_name')?.value.trim() || '';
+  if (!name){ renderLock('Indiquez le nom de la structure.'); return; }
+  REAL.settings.structure = name; REAL.settings.responsable = $('#o_resp').value.trim(); REAL.settings.exercice = +$('#o_ex').value;
+  ACCS.forEach(a => { REAL.settings.soldes[a.k] = Math.round(num($('#o_s_' + a.k).value)); });
+  Store.saveMeta(); S.lockMode = 'unlock'; unlock(); toast('Registre ouvert. Saisissez votre première opération.');
+}
+async function obAfterBio(){
+  OB.step = 'wait'; renderLock(); await Store.ready;
+  if (REAL.settings.structure){ S.lockMode = 'unlock'; unlock(); }
+  else { OB.step = 'struct'; renderLock(); }
+}
+function unlock(){ S.unlocked = true; S.lastAct = Date.now(); const el = $('#lock'); el.hidden = true; el.innerHTML = ''; $('#app').hidden = false; render(); }
+function lock(){ if (!DEV.pin || !STORAGE_OK) return; S.unlocked = false; L.buf = ''; S.lockMode = 'unlock'; renderLock(); }
+setInterval(() => { if (S.unlocked && DEV.pin && !S.demo && Date.now() - S.lastAct > DEV.autoLock * 60000) lock(); }, 15000);
+['pointerdown','keydown'].forEach(t => document.addEventListener(t, () => { S.lastAct = Date.now(); }, {passive:true}));
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) hiddenAt = Date.now(); else if (hiddenAt && S.unlocked && DEV.pin && !S.demo && Date.now() - hiddenAt > DEV.autoLock * 60000) lock(); });
+
+/* ================= Événements ================= */
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('button,a,[data-close]'); if (!t) return;
+  const ds = t.dataset;
+  if ('close' in ds){ closeSheet(); return; }
+  if (ds.key){ if (S.lockMode === 'onboard') obPin(ds.key); else lockPin(ds.key); return; }
+  if (ds.oblen){ OB.len = +ds.oblen; OB.buf = ''; renderLock(); return; }
+  if (ds.go){ if (ds.jfgo) S.jf = ds.jfgo; closeSheet(); go(ds.go); return; }
+  if (ds.op){ openOpDetail(ds.op); return; }
+  if (ds.jf){ S.jf = ds.jf; $$('[data-jf]').forEach(b => b.setAttribute('aria-pressed', b.dataset.jf === S.jf)); const box = $('#ledgerBox'); if (box) box.innerHTML = ledgerHTML(compute()); return; }
+  if (ds.sens){ const sh = t.closest('.sheet'); sh.dataset.sens = ds.sens; syncOpForm(sh); return; }
+  if (ds.sched){ openSched(ds.sched); return; }
+  if (ds.editfin){ openFinSheet(ds.editfin); return; }
+  if (ds.opfin){ const f = D().fins.find(x => x.code === ds.opfin); openOpSheet({fin:ds.opfin, sens:f && !f.remb ? 'E' : 'S', cat:f ? (f.remb ? 'remb_capital' : (f.type === 'Subvention' ? 'subv_inv' : f.type === 'Fonds propres' ? 'apport_expl' : 'capital')) : ''}); return; }
+  if (ds.copy){ copyText(ds.copy, t); return; }
+  if (ds.sugg){ const ta = $('#ask'); if (ds.sugg.startsWith('Enregistre') && ta){ ta.value = ds.sugg; ta.focus(); } else sendChat(ds.sugg); return; }
+  if (ds.prop !== undefined){ const p = S.proposals[+ds.prop]; if (p){ S.proposals.splice(+ds.prop, 1); const box = $('#props'); if (box) box.innerHTML = propsHTML(); openOpSheet({...p}); } return; }
+  if (ds.propx !== undefined){ S.proposals.splice(+ds.propx, 1); const box = $('#props'); if (box) box.innerHTML = propsHTML(); return; }
+  const a = ds.act; if (!a) return;
+  const sh = t.closest('.sheet');
+  switch (a){
+    case 'lock': lock(); break;
+    case 'newop': openOpSheet(); break;
+    case 'newfin': openFinSheet(); break;
+    case 'analyse': analyseText(sh); break;
+    case 'submitop': submitOp(sh); break;
+    case 'savefin': saveFin(sh); break;
+    case 'delfin-ask': $('#delZone', sh).innerHTML = `<div class="confirm"><b>Supprimer ${esc(sh.dataset.code)} ?</b><span class="small">Aucune écriture n’y est liée.</span><div class="btns"><button class="btn danger" type="button" data-act="delfin">Supprimer</button><button class="btn" type="button" data-act="delfin-no">Annuler</button></div></div>`; break;
+    case 'delfin-no': $('#delZone', sh).innerHTML = '<button class="btn danger wide" type="button" data-act="delfin-ask">Supprimer ce financement</button>'; break;
+    case 'delfin': { const d = D(); d.fins = d.fins.filter(f => f.code !== sh.dataset.code); if (!S.demo) REAL.fins = d.fins; Store.saveMeta(); closeSheet(); toast('Financement supprimé.'); break; }
+    case 'rev-ask': $('#revZone', sh).innerHTML = `<div class="confirm"><b>Créer une contre-passation ?</b><span class="small">Une écriture inverse, datée d’aujourd’hui, annule l’effet de celle-ci. L’original reste visible dans le journal.</span><div class="btns"><button class="btn danger" type="button" data-act="rev-do">${bioSignOn() ? 'Signer et contre-passer' : 'Contre-passer'}</button><button class="btn" type="button" data-act="rev-no">Annuler</button></div></div>`; break;
+    case 'rev-no': $('#revZone', sh).innerHTML = '<button class="btn danger wide" type="button" data-act="rev-ask">Contre-passer cette écriture</button>'; break;
+    case 'rev-do': doReverse(sh); break;
+    case 'pin-change': openPinChange(); break;
+    case 'pin-save': savePinChange(sh); break;
+    case 'audit': runAudit(); break;
+    case 'send': if (chatCtl) chatCtl.abort(); else sendChat($('#ask')?.value); break;
+    case 'xlsx': exportXlsx(); break;
+    case 'json': exportJson(); break;
+    case 'dlapp': downloadApp(); break;
+    case 'install': if (S.installEvt){ S.installEvt.prompt(); try { await S.installEvt.userChoice; } catch {} S.installEvt = null; refresh(); } break;
+    case 'demo': enterDemo(); break;
+    case 'demo-exit': exitDemo(); break;
+    case 'verify': S.integrity = null; refresh(); verifyAll(); break;
+    case 'ai-save': { const k = $('#apiKey').value.trim(); if (k) AICFG.key = k; AICFG.model = $('#apiModel').value; ls.set(AIK, AICFG); AI.setKey(); toast(AICFG.key ? 'Assistant activé avec votre clé API.' : 'Modèle enregistré.'); render(); break; }
+    case 'ai-clear': AICFG.key = ''; ls.set(AIK, AICFG); AI.setKey(); toast('Clé API effacée.'); render(); break;
+    case 'bio-enroll': { const r = await enrollBio(); toast(r.ok ? 'Empreinte enregistrée sur cet appareil.' : r.msg, 5000); render(); break; }
+    case 'bio-test': try { await bioAssert(crypto.getRandomValues(new Uint8Array(32))); toast('Empreinte reconnue.'); } catch (e) { const k = bioErr(e); if (k === 'bloque') BIO.blocked = true; toast(bioMsg(k), 5000); render(); } break;
+    case 'bio-remove': DEV.credIds = []; DEV.credPub = null; DEV.signBio = false; saveDev(); toast('Empreinte retirée de cet appareil. Les écritures déjà signées restent vérifiables.'); render(); break;
+    case 'bio-unlock': try { await bioAssert(crypto.getRandomValues(new Uint8Array(32))); DEV.fails = 0; DEV.lockUntil = 0; saveDev(); unlock(); } catch (e) { const k = bioErr(e); if (k === 'bloque') BIO.blocked = true; renderLock(bioMsg(k)); } break;
+    case 'forgot': { const z = $('#forgotZone'); if (bioUsable()) z.innerHTML = '<p class="small muted">Déverrouillez par empreinte, puis changez le code dans Sécurité et intégrité.</p>'; else if (Store.kind === 'cloud') z.innerHTML = `<div class="confirm" style="text-align:left"><span class="small">Vos données restent dans votre compte Claude. Vous pouvez réinitialiser le verrou de cet appareil et créer un nouveau code.</span><button class="btn danger" type="button" data-act="reset-lock">Réinitialiser le verrou de cet appareil</button></div>`; else z.innerHTML = '<p class="small muted">Sans empreinte enregistrée, le code ne peut pas être réinitialisé sur cet appareil. Vous pouvez effacer les données de l’application dans les réglages du navigateur, puis restaurer votre dernière sauvegarde .json.</p>'; break; }
+    case 'reset-lock': DEV.pin = null; DEV.credIds = []; DEV.fails = 0; DEV.lockUntil = 0; saveDev(); S.lockMode = 'onboard'; OB.step = 'pin1'; OB.buf = ''; renderLock(); break;
+    case 'ob-start': OB.step = 'pin1'; OB.buf = ''; renderLock(); break;
+    case 'ob-bio': { const r = await enrollBio(); renderLock(r.ok ? '' : r.msg); break; }
+    case 'ob-next': obAfterBio(); break;
+    case 'ob-finish': obFinish(); break;
+  }
+});
+document.addEventListener('input', ev => {
+  if (ev.target.id === 'q'){ S.jq = ev.target.value; const box = $('#ledgerBox'); if (box) box.innerHTML = ledgerHTML(compute()); }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target, d = D();
+  if (t.dataset.bud){ const v = Math.round(num(t.value)); if (v) d.budget[t.dataset.bud] = v; else delete d.budget[t.dataset.bud]; t.value = v ? fmt(v) : ''; Store.saveMeta(); return; }
+  if (t.dataset.set){ const k = t.dataset.set; if (k.startsWith('soldes.')){ const v = Math.round(num(t.value)); d.settings.soldes[k.slice(7)] = v; t.value = fmt(v); } else if (k === 'exercice') d.settings.exercice = +t.value; else d.settings[k] = t.value.trim(); Store.saveMeta(); return; }
+  if (t.dataset.dev){ if (t.dataset.dev === 'signBio') DEV.signBio = t.checked; if (t.dataset.dev === 'autoLock') DEV.autoLock = +t.value; saveDev(); toast('Préférence enregistrée.'); return; }
+  if (t.id === 'restore' && t.files?.[0]) restoreJson(t.files[0]);
+});
+document.addEventListener('focusout', () => { setTimeout(() => { const ae = document.activeElement; if (S.deferRender && !($('#main').contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae?.tagName))) render(); }, 0); });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && S.sheet){ closeSheet(); return; }
+  if (!$('#lock').hidden && (S.lockMode === 'unlock' || OB.step === 'pin1' || OB.step === 'pin2') && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')){
+    if (/^\d$/.test(ev.key)){ S.lockMode === 'onboard' ? obPin(ev.key) : lockPin(ev.key); }
+    else if (ev.key === 'Backspace'){ S.lockMode === 'onboard' ? obPin('del') : lockPin('del'); }
+  }
+  if (ev.key === 'Enter' && ev.target.id === 'ask' && !ev.shiftKey){ ev.preventDefault(); sendChat(ev.target.value); }
+});
+window.addEventListener('hashchange', () => { S.view = viewFromHash(); closeSheet(); render(); window.scrollTo(0, 0); });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; refresh(); });
+
+/* ================= Démarrage ================= */
+(async function boot(){
+  if (!window.crypto || !crypto.subtle){
+    $('#lock').innerHTML = `<div class="lock-in"><div class="emblem">${ic('shield')}</div><h1>Connexion non sécurisée</h1><p class="muted">Ouvrez l’application depuis une adresse HTTPS : le chiffrement et l’empreinte digitale l’exigent.</p></div>`; return;
+  }
+  Store.init(); S.view = viewFromHash();
+  await bioCheck();
+  Store.start(); AI.init();
+  Store.ready.then(() => setTimeout(syncDeviceCred, 600));
+  if (!STORAGE_OK){ S.lockMode = 'unlock'; unlock(); }
+  else if (!DEV.pin){ S.lockMode = 'onboard'; OB.step = 'intro'; renderLock(); }
+  else { S.lockMode = 'unlock'; renderLock(); }
+  if ('serviceWorker' in navigator && !ENV.inClaude && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+REGISTRE FINANCIER SCELLÉ — application installable (PWA)
+=========================================================
+
+Contenu du dossier
+------------------
+index.html              l'application complète (un seul fichier)
+manifest.webmanifest    nom, icônes et couleurs pour l'installation
+sw.js                   fonctionnement hors ligne
+favicon.svg             logo de l'onglet du navigateur
+icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png   icônes du téléphone
+LISEZMOI.txt            ce guide
+
+L'empreinte digitale et l'installation exigent une adresse HTTPS.
+Ouvrir index.html directement depuis les fichiers du téléphone ne suffit pas.
+
+
+MISE EN LIGNE GRATUITE AVEC GITHUB PAGES (10 minutes)
+-----------------------------------------------------
+1. Décompressez le fichier registre-financier-pwa.zip.
+
+2. Créez le dépôt :
+   https://github.com/new
+   Nom du dépôt : registre-financier   →   Public   →   Create repository
+
+3. Déposez les 9 fichiers du dossier (pas le dossier lui-même) :
+   https://github.com/VOTRE-COMPTE/registre-financier/upload/main
+   (remplacez VOTRE-COMPTE par votre nom d'utilisateur GitHub)
+   puis cliquez sur « Commit changes ».
+
+4. Activez la publication :
+   https://github.com/VOTRE-COMPTE/registre-financier/settings/pages
+   Source : « Deploy from a branch »   →   Branch : « main », dossier « / (root) »   →   Save
+
+5. Après 1 à 2 minutes, l'application est en ligne à :
+   https://VOTRE-COMPTE.github.io/registre-financier/
+
+
+AUTRE SOLUTION : NETLIFY DROP (depuis un ordinateur)
+----------------------------------------------------
+1. Ouvrez https://app.netlify.com/drop
+2. Glissez le dossier registre-financier dans la page.
+3. Netlify affiche l'adresse publique (https://....netlify.app).
+
+
+INSTALLATION SUR LE TÉLÉPHONE
+-----------------------------
+Android (Chrome)  : ouvrez l'adresse, menu ⋮, puis « Installer l'application ».
+iPhone (Safari)   : ouvrez l'adresse, bouton Partager, puis « Sur l'écran d'accueil ».
+
+
+PREMIER LANCEMENT
+-----------------
+1. « Sécuriser mon registre » : créez le code PIN de secours (4 ou 6 chiffres).
+2. « Enregistrer mon empreinte » : posez votre doigt sur le capteur.
+3. Indiquez le nom de la structure, l'exercice et les soldes d'ouverture.
+4. Chaque écriture est ensuite signée par votre empreinte et scellée (SHA-256).
+
+
+ACTIVER L'ASSISTANT IA DANS L'APPLICATION INSTALLÉE
+---------------------------------------------------
+1. Créez une clé API Claude :
+   https://platform.claude.com/settings/keys
+2. Dans l'application : Plus  →  Paramètres  →  Intelligence artificielle
+   Collez la clé, choisissez le modèle, puis « Enregistrer ».
+La clé reste sur le téléphone et n'est envoyée qu'à https://api.anthropic.com.
+Sans clé, le moteur autonome local reste actif (classement des saisies,
+contrôle des soldes, du budget, des échéances, des doublons et de l'intégrité).
+
+
+DONNÉES ET SAUVEGARDES
+----------------------
+- Dans l'application installée, les données restent sur le téléphone.
+- Exportez une sauvegarde chaque semaine : Plus → Paramètres → « Sauvegarde complète (.json) ».
+- Effacer les données du navigateur efface le registre : gardez vos sauvegardes.
+- Pour passer de la version Claude à l'application installée (ou inversement) :
+  exportez la sauvegarde .json d'un côté, puis « Restaurer une sauvegarde »
+  dans un registre vide de l'autre côté. La chaîne d'intégrité est vérifiée
+  avant la restauration.
+- Export Excel complet : Plus → « Exporter en Excel » (journal, financements,
+  échéanciers, budget, trésorerie, plan comptable SYSCOHADA).
